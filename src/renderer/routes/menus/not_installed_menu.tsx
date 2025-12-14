@@ -52,7 +52,7 @@ export default class NotInstalledMenu extends AbstractMenu<{
                   ); */
                   if (Backend.isSwitch()) {
                     alert(
-                      "HDR's files have been installed. Please enable hdr, hdr-assets, and hdr-stages when arcropolis offers."
+                      "HDR's files have been installed. Please enable hdr, hdr-assets, and hdr-stages when arcropolis offers.",
                     );
                   } else {
                     alert("HDR's files have been installed.");
@@ -66,7 +66,7 @@ export default class NotInstalledMenu extends AbstractMenu<{
                     new PopupData(['Ok'], results, () => {
                       this.props.switchTo(MenuType.CheckingInstalled);
                       Backend.instance().relaunchApplication();
-                    })
+                    }),
                   );
                 });
             }}

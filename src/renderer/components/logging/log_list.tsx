@@ -13,7 +13,7 @@ function buildList() {
         {`${node.entry.level.toString()} (${node.entry.time.toLocaleTimeString()}): ${
           node.entry.data
         }`}
-      </div>
+      </div>,
     );
     ++i;
     node = node.next;
@@ -21,10 +21,10 @@ function buildList() {
   return out;
 }
 
-export const LogList = () => {
+export function LogList() {
   return (
     <div className="log-box" id="log-box">
       {buildList()}
     </div>
   );
-};
+}

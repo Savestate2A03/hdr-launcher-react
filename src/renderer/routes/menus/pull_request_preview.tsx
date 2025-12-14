@@ -18,7 +18,7 @@ export function PullRequestPreview(props: { pullRequest: any }) {
         ))}
       </h4>
       {props.pullRequest.labels.filter((label: any) =>
-        String(label.name).includes('includes assets')
+        String(label.name).includes('includes assets'),
       ).length != 0 ? (
         <h4
           style={{ color: 'yellow', paddingTop: '5px', paddingBottom: '5px' }}

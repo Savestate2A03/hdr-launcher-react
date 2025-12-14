@@ -4,6 +4,7 @@ import {
   ipcMain,
   ipcRenderer,
   app,
+  shell,
 } from 'electron';
 import { Progress, Messages, Responses } from 'nx-request-api';
 
@@ -11,16 +12,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as md5 from 'md5-file';
 import * as extract from 'extract-zip';
-import * as axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { OkOrError } from 'nx-request-api/lib/responses';
 import * as Process from 'child_process';
 import * as net from 'net';
 import { mainWindow } from './main';
 import Config from './config';
-import * as os from 'os';
-
-const webrequest = require('request');
-const explorer = require('open-file-explorer');
 
 function readDirAll(dir: string, tree: Responses.DirTree, depth: number) {
   // let tabs = "";
@@ -48,17 +45,17 @@ export class RequestHandler {
       } catch (e) {
         alert(
           `uncaught error handling request:\n${JSON.stringify(
-            request
-          )}\nError:${e}`
+            request,
+          )}\nError:${e}`,
         );
         resolve(
           new Responses.OkOrError(
             false,
             `uncaught error handling request:\n${JSON.stringify(
-              request
+              request,
             )}\nError:${e}`,
-            request.id
-          )
+            request.id,
+          ),
         );
       }
     });
@@ -68,21 +65,21 @@ export class RequestHandler {
 async function handleInner(
   request: any,
   resolve: (
-    value: Responses.OkOrError | PromiseLike<Responses.OkOrError>
-  ) => void
+    value: Responses.OkOrError | PromiseLike<Responses.OkOrError>,
+  ) => void,
 ) {
   // define the argument check "macro"
   function argcheck(count: number): boolean {
     if (request.arguments == 0 || request.arguments === undefined) {
       console.error(
-        `no arguments were provided for request${request.call_name}`
+        `no arguments were provided for request${request.call_name}`,
       );
       resolve(
         new Responses.OkOrError(
           false,
           `no arguments were provided for request ${request.call_name}`,
-          request.id
-        )
+          request.id,
+        ),
       );
       return false;
     }
@@ -92,8 +89,8 @@ async function handleInner(
         new Responses.OkOrError(
           false,
           `not enough args passed for request${request.call_name}`,
-          request.id
-        )
+          request.id,
+        ),
       );
       return false;
     }
@@ -108,8 +105,8 @@ async function handleInner(
         new Responses.OkOrError(
           true,
           'ping was received and processed!',
-          request.id
-        )
+          request.id,
+        ),
       );
       break;
     case 'get_platform':
@@ -117,7 +114,7 @@ async function handleInner(
       break;
     case 'get_sdcard_root':
       resolve(
-        new Responses.OkOrError(true, Config.getSdcardPath(), request.id)
+        new Responses.OkOrError(true, Config.getSdcardPath(), request.id),
       );
       break;
     case 'is_installed':
@@ -126,11 +123,11 @@ async function handleInner(
           true,
           String(
             fs.existsSync(
-              path.join(Config.getSdcardPath(), 'ultimate/mods/hdr')
-            )
+              path.join(Config.getSdcardPath(), 'ultimate/mods/hdr'),
+            ),
           ),
-          request.id
-        )
+          request.id,
+        ),
       );
       break;
     case 'get_version':
@@ -138,7 +135,7 @@ async function handleInner(
         // ensure that hdr is installed
         const versionFile: string = path.join(
           Config.getSdcardPath(),
-          'ultimate/mods/hdr/ui/hdr_version.txt'
+          'ultimate/mods/hdr/ui/hdr_version.txt',
         );
         const exists = fs.existsSync(versionFile);
         if (!exists) {
@@ -146,8 +143,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'Version file does not exist! HDR may not be installed.',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -175,8 +172,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               `specified (${file}) file does not exist! HDR may not be installed.`,
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -200,7 +197,7 @@ async function handleInner(
         const url = args[0];
         const location = args[1];
         console.log(
-          `preparing to download...\nurl: ${url}\nlocation: ${location}`
+          `preparing to download...\nurl: ${url}\nlocation: ${location}`,
         );
         if (mainWindow == null) {
           console.error('cannot download without a main window!');
@@ -208,8 +205,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'cannot download without a main window!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -219,8 +216,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               `cannot download from an invalid url: ${url}`,
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -236,92 +233,78 @@ async function handleInner(
         out = fs.createWriteStream(location, { mode: 0o777 });
         console.debug('created write stream');
 
-        const req = webrequest({
-          method: 'GET',
-          uri: url,
+        const response = await axios.get(url, {
+          responseType: 'stream',
           headers: { 'User-Agent': 'HDR Launcher' },
         });
 
+        const total = Number(response.headers['content-length'] ?? 0) || 0;
         let current = 0;
-        let total = 0;
-        let complete = false;
+        let resolved = false;
 
-        let outcome: Responses.OkOrError | null = null;
-        req.on('response', function (data: any) {
-          console.info(`status code: ${data.statusCode}`);
-          if (data.statusCode > 300) {
-            console.error('download failed due to bad status code.');
-            if (out != null && !out.destroyed) {
-              out.close();
-            }
-            outcome = new Responses.OkOrError(
-              false,
-              `download failed with status code: ${data.statusCode}`,
-              request.id
-            );
-            complete = true;
-          }
-          total = data.headers['content-length'];
-        });
+        const fail = (message: string) => {
+          if (resolved) return;
+          resolved = true;
+          resolve(new Responses.OkOrError(false, message, request.id));
+        };
 
-        const counter = 0;
-        req.on('data', function (chunk: any) {
+        const stream = response.data as NodeJS.ReadableStream;
+        stream.on('data', (chunk: Buffer) => {
           current += chunk.length;
+          const progress = total > 0 ? current / total : 0;
           mainWindow?.webContents.send(
             'progress',
-            new Progress(
-              'Downloading...',
-              `Downloading from ${url}`,
-              current / total
-            )
+            new Progress('Downloading...', `Downloading from ${url}`, progress),
           );
         });
 
-        req.on('end', function () {
-          if (out != null && !out.destroyed) {
-            out.close();
+        stream.on('error', (error: Error) => {
+          if (out && !out.destroyed) {
+            out.destroy();
           }
-          if (outcome == null) {
-            resolve(
-              new Responses.OkOrError(
-                true,
-                'download finished successfully',
-                request.id
-              )
-            );
-          } else {
-            resolve(outcome);
-          }
+          fail(`download failed with error: ${error.message}`);
         });
 
-        req.on('error', function (e: any) {
-          console.log(`Error: ${e.message}`);
-          if (out != null && !out.destroyed) {
-            out.close();
-          }
+        out.on('finish', () => {
+          if (resolved) return;
+          resolved = true;
           resolve(
             new Responses.OkOrError(
-              false,
-              `download failed with error: ${e.message}`,
-              request.id
-            )
+              true,
+              'download finished successfully',
+              request.id,
+            ),
           );
         });
 
-        req.pipe(out);
+        out.on('error', (error: Error) => {
+          fail(`download failed with error: ${error.message}`);
+        });
+
+        stream.pipe(out);
 
         break;
       } catch (e) {
         if (out != null && !out.destroyed) {
           out.close();
         }
-        resolve(
-          new Responses.OkOrError(
-            false,
-            `Error during download: ${String(e)}`,
-            request.id
-          )
-        );
+        if (axios.isAxiosError(e)) {
+          const error = e as AxiosError;
+          const status = error.response?.status;
+          const message =
+            status != null
+              ? `download failed with status code: ${status}`
+              : error.message;
+          resolve(new Responses.OkOrError(false, message, request.id));
+        } else {
+          resolve(
+            new Responses.OkOrError(
+              false,
+              `Error during download: ${String(e)}`,
+              request.id,
+            ),
+          );
+        }
         break;
       }
     case 'get_md5':
@@ -339,8 +322,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               `specified file (${file}) for md5 does not exist!`,
-              request.id
-            )
+              request.id,
+            ),
           );
           console.info('Failed - file does not exist.');
           break;
@@ -357,17 +340,13 @@ async function handleInner(
       }
     case 'open_mod_manager':
       try {
-        let mods_path = 'ultimate/mods/';
-        if (os.platform() == 'win32') {
-          mods_path = 'ultimate\\mods\\';
-        }
-        explorer(`${Config.getSdcardPath()}${mods_path}`, (err: any) => {
-          if (err) {
-            resolve(new Responses.OkOrError(false, err.toString(), request.id));
-          } else {
-            resolve(new Responses.OkOrError(true, 'done', request.id));
-          }
-        });
+        const modsPath = path.join(Config.getSdcardPath(), 'ultimate', 'mods');
+        const result = await shell.openPath(modsPath);
+        resolve(
+          result
+            ? new Responses.OkOrError(false, result, request.id)
+            : new Responses.OkOrError(true, 'done', request.id),
+        );
         break;
       } catch (e) {
         resolve(new Responses.OkOrError(true, String(e), request.id));
@@ -386,8 +365,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             String(fs.existsSync(file) && fs.statSync(file).isFile()),
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -408,8 +387,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             String(fs.existsSync(file) && fs.statSync(file).isDirectory()),
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -429,8 +408,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             String(fs.existsSync(dir) && fs.statSync(dir).isDirectory()),
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -448,7 +427,7 @@ async function handleInner(
 
         if (!fs.existsSync(dir)) {
           resolve(
-            new Responses.OkOrError(false, 'path does not exist!', request.id)
+            new Responses.OkOrError(false, 'path does not exist!', request.id),
           );
           break;
         }
@@ -458,8 +437,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             'removed directory successfully',
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -477,7 +456,7 @@ async function handleInner(
 
         if (!fs.existsSync(dir)) {
           resolve(
-            new Responses.OkOrError(false, 'path does not exist!', request.id)
+            new Responses.OkOrError(false, 'path does not exist!', request.id),
           );
           break;
         }
@@ -486,8 +465,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'path was not a directory!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -498,18 +477,18 @@ async function handleInner(
           const fullpath = path.join(dir, item);
           if (fs.statSync(fullpath).isDirectory()) {
             entries.push(
-              new Responses.PathEntry(fullpath, Responses.PathEntry.DIRECTORY)
+              new Responses.PathEntry(fullpath, Responses.PathEntry.DIRECTORY),
             );
           } else {
             entries.push(
-              new Responses.PathEntry(fullpath, Responses.PathEntry.FILE)
+              new Responses.PathEntry(fullpath, Responses.PathEntry.FILE),
             );
           }
         });
 
         const list = new Responses.PathList(entries);
         resolve(
-          new Responses.OkOrError(true, JSON.stringify(list), request.id)
+          new Responses.OkOrError(true, JSON.stringify(list), request.id),
         );
         break;
       } catch (e) {
@@ -527,7 +506,7 @@ async function handleInner(
 
         if (!fs.existsSync(dir)) {
           resolve(
-            new Responses.OkOrError(false, 'path does not exist!', request.id)
+            new Responses.OkOrError(false, 'path does not exist!', request.id),
           );
           break;
         }
@@ -536,8 +515,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'path was not a directory!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -546,7 +525,7 @@ async function handleInner(
         readDirAll(dir, tree, 0);
 
         resolve(
-          new Responses.OkOrError(true, JSON.stringify(tree), request.id)
+          new Responses.OkOrError(true, JSON.stringify(tree), request.id),
         );
         break;
       } catch (e) {
@@ -571,8 +550,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'destination does not exist!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -581,8 +560,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'destination was not a directory!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -592,8 +571,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'filepath does not exist!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -602,8 +581,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'filepath was not a file!',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -613,8 +592,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             'file extracted successfully!',
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -630,7 +609,7 @@ async function handleInner(
         // read the given url
         const url: string = request.arguments[0];
 
-        await axios.default
+        await axios
           .get(url, { timeout: 30000 })
           .then((res) => {
             if (res.status >= 300) {
@@ -639,8 +618,8 @@ async function handleInner(
                 new Responses.OkOrError(
                   false,
                   `Response code was not successful: ${res.status}`,
-                  request.id
-                )
+                  request.id,
+                ),
               );
             } else {
               console.info(JSON.stringify(res.data));
@@ -650,8 +629,8 @@ async function handleInner(
                   typeof res.data === 'string'
                     ? res.data
                     : JSON.stringify(res.data),
-                  request.id
-                )
+                  request.id,
+                ),
               );
             }
           })
@@ -661,8 +640,8 @@ async function handleInner(
               new Responses.OkOrError(
                 false,
                 String(`Error during get: ${e}`),
-                request.id
-              )
+                request.id,
+              ),
             );
           });
         break;
@@ -685,8 +664,8 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               'specified file already does not exist',
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
@@ -697,8 +676,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             'File deleted successfully.',
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -726,8 +705,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             'File written successfully.',
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -752,7 +731,7 @@ async function handleInner(
         const args = request.arguments;
         fs.mkdirSync(args[0], { recursive: true });
         resolve(
-          new Responses.OkOrError(true, 'directory now exists.', request.id)
+          new Responses.OkOrError(true, 'directory now exists.', request.id),
         );
         break;
       } catch (e) {
@@ -770,7 +749,7 @@ async function handleInner(
         // make sure the assets dir exists
         const assetsDir: string = path.join(
           Config.getSdcardPath(),
-          `ultimate/mods/${src}`
+          `ultimate/mods/${src}`,
         );
         let exists = fs.existsSync(assetsDir);
         if (!exists) {
@@ -778,15 +757,15 @@ async function handleInner(
             new Responses.OkOrError(
               false,
               `${src} dir does not exist, so we cannot clone it!`,
-              request.id
-            )
+              request.id,
+            ),
           );
           break;
         }
 
         const prAssetsDir: string = path.join(
           Config.getSdcardPath(),
-          `ultimate/mods/${dest}`
+          `ultimate/mods/${dest}`,
         );
 
         // remove the existing pr assets dir if there is one
@@ -801,8 +780,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             `cloned ${src} successfully`,
-            request.id
-          )
+            request.id,
+          ),
         );
         break;
       } catch (e) {
@@ -826,8 +805,8 @@ async function handleInner(
           new Responses.OkOrError(
             true,
             `Exit status: ${String(result)}`,
-            request.id
-          )
+            request.id,
+          ),
         );
       });
       mainWindow?.hide();
@@ -854,8 +833,8 @@ async function handleInner(
         new Responses.OkOrError(
           false,
           `unable to handle request ${name}`,
-          request.id
-        )
+          request.id,
+        ),
       );
   }
 }

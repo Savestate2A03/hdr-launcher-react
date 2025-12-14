@@ -68,7 +68,7 @@ export default function App() {
   );
 }
 
-const ErrorPage = () => {
+function ErrorPage() {
   return (
     <div>
       <div
@@ -103,7 +103,7 @@ const ErrorPage = () => {
       </ErrorBoundary>
     </div>
   );
-};
+}
 
 class ErrorBoundary extends React.Component<{
   children: JSX.Element[] | JSX.Element;

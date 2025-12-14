@@ -1,5 +1,6 @@
 module.exports = {
   extends: 'erb',
+  parser: '@typescript-eslint/parser',
   rules: {
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
@@ -12,7 +13,6 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: './tsconfig.json',
     tsconfigRootDir: __dirname,
     createDefaultProgram: true,
   },
@@ -20,9 +20,6 @@ module.exports = {
     'import/resolver': {
       // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below
       node: {},
-      webpack: {
-        config: require.resolve('./.erb/configs/webpack.config.eslint.ts'),
-      },
       typescript: {},
     },
     'import/parsers': {

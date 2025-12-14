@@ -1,10 +1,10 @@
 import { Progress } from 'nx-request-api';
+import path from 'path';
 import { Backend } from './backend';
 import { getInstallType, getRepoName } from './install';
-import path from 'path';
 
 export async function isAvailable(
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ): Promise<boolean> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -28,7 +28,7 @@ export async function isAvailable(
 }
 
 export async function getLatest(
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -44,7 +44,7 @@ export async function getLatest(
 
       // get the latest for that repo
       let latest = await backend.getRequest(
-        `https://github.com/HDR-Development/${repoName}/releases/latest/download/hdr_version.txt`
+        `https://github.com/HDR-Development/${repoName}/releases/latest/download/hdr_version.txt`,
       );
       if (latest.startsWith('"') && latest.endsWith('"')) {
         latest = latest.substring(1, latest.length - 1);
@@ -63,7 +63,7 @@ export interface UpdateResult {
 }
 
 export default async function update(
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ): Promise<UpdateResult> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -76,7 +76,7 @@ export default async function update(
       const backend = Backend.instance();
       const sdroot = await backend.getSdRoot();
       reportProgress(
-        new Progress('Checking for Updates', 'checking for updates', 1.0)
+        new Progress('Checking for Updates', 'checking for updates', 1.0),
       );
       const downloads = `${sdroot}downloads/`;
       let versionStripped = 'unknown';
@@ -97,7 +97,7 @@ export default async function update(
       console.info('attempting to update chain');
       while (!(version === latest)) {
         reportProgress(
-          new Progress('Checking for Updates', 'checking for updates', 1.0)
+          new Progress('Checking for Updates', 'checking for updates', 1.0),
         );
         version = await backend.getVersion();
         versionStripped = version.split('-')[0];
@@ -116,8 +116,8 @@ export default async function update(
           new Progress(
             `Updating to ${versionStripped}`,
             `Updating to version ${version}`,
-            0
-          )
+            0,
+          ),
         );
         let result;
         // try to download the upgrade zip.
@@ -125,37 +125,37 @@ export default async function update(
           result = await backend.downloadFile(
             `https://github.com/HDR-Development/${repoName}/releases/download/${versionStripped}/upgrade.zip`,
             `${downloads}upgrade.zip`,
-            (p: Progress) => reportProgress(p)
+            (p: Progress) => reportProgress(p),
           );
         } catch (e) {
           // this likely means that
           reject(
             new Error(
               `An error occurred while downloading upgrade.zip from version ${version}!\nError info: ${e}\nPlease report this in #help-questions in the HDR Discord, ` +
-                `as this is likely a packaging issue (not a *you* issue).`
-            )
+                `as this is likely a packaging issue (not a *you* issue).`,
+            ),
           );
           return;
         }
         console.info(result);
 
         reportProgress(
-          new Progress('Extracting', `Extracting update${version}`, 0)
+          new Progress('Extracting', `Extracting update${version}`, 0),
         );
         await backend.unzip(
           `${downloads}upgrade.zip`,
           sdroot,
-          progressCallback
+          progressCallback,
         );
         await backend.deleteFile(`${downloads}upgrade.zip`);
         await handleDeletions(version, 'deletions.json', progressCallback);
         // get changelogs. If these fail, we should still successfully finish updating.
         try {
           reportProgress(
-            new Progress('Getting Changelog', `Getting changelog${version}`, 0)
+            new Progress('Getting Changelog', `Getting changelog${version}`, 0),
           );
           const changelog = await backend.getRequest(
-            `https://github.com/HDR-Development/${repoName}/releases/download/${versionStripped}/CHANGELOG.md`
+            `https://github.com/HDR-Development/${repoName}/releases/download/${versionStripped}/CHANGELOG.md`,
           );
           // let changes = processChangelog(changelog);
           // changes.forEach(entry => changelogs.push(entry));
@@ -181,7 +181,7 @@ export default async function update(
 export async function handleDeletions(
   version: string,
   deletions_artifact: string,
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -202,14 +202,22 @@ export async function handleDeletions(
       await backend.downloadFile(
         `https://github.com/HDR-Development/${repoName}/releases/download/${versionStripped}/${deletions_artifact}`,
         deletions_file,
-        (p: Progress) => reportProgress(p)
+        (p: Progress) => reportProgress(p),
       );
 
       // check for hdr-launcher.nro and delete it if we're on emulator
       const platform = await backend.getPlatform();
-      const nroPath = path.join('atmosphere', 'contents', '01006A800016E000', 'romfs', 'skyline', 'plugins', 'hdr-launcher.nro');
+      const nroPath = path.join(
+        'atmosphere',
+        'contents',
+        '01006A800016E000',
+        'romfs',
+        'skyline',
+        'plugins',
+        'hdr-launcher.nro',
+      );
       try {
-        if (platform === "Emulator") {
+        if (platform === 'Emulator') {
           const exists = await backend.fileExists(sdroot + nroPath);
           if (exists) {
             await backend.deleteFile(sdroot + nroPath);
@@ -238,8 +246,8 @@ export async function handleDeletions(
           new Progress(
             'deleting removed files',
             `file: ${path}`,
-            count / entries.length
-          )
+            count / entries.length,
+          ),
         );
 
         try {
@@ -253,7 +261,7 @@ export async function handleDeletions(
           // for deleting individual files, we can just warn the user to verify later if it fails.
           console.error(`Failed to detect/delete file: ${path}`);
           alert(
-            'Failed to detect/delete certain HDR files. Please run verify to ensure your installation is correct.'
+            'Failed to detect/delete certain HDR files. Please run verify to ensure your installation is correct.',
           );
         }
         count += 1;

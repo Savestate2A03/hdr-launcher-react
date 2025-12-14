@@ -2,7 +2,7 @@ import { Remark } from 'react-remark';
 import { PopupData } from '../operations/popup_data';
 import { FocusButton } from './buttons/focus_button';
 
-export const Popup = (props: { data: PopupData }) => {
+export function Popup(props: { data: PopupData }) {
   return (
     <div className="overlay-progress">
       <div className="progress-block vertical-center">
@@ -21,4 +21,4 @@ export const Popup = (props: { data: PopupData }) => {
       </div>
     </div>
   );
-};
+}

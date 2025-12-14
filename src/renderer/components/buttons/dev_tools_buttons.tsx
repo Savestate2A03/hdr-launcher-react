@@ -4,13 +4,13 @@ import { Backend } from 'renderer/operations/backend';
 import * as LauncherConfig from '../../operations/launcher_config';
 import { ScrollFocusButton } from './scroll_focus_button';
 
-export const CloneFolderForDev = (props: {
+export function CloneFolderForDev(props: {
   modName: string;
   setInfo: (info: string) => void;
   onComplete: () => void;
   showProgress: (p: Progress) => void;
   then?: () => Promise<void>;
-}) => {
+}) {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export const CloneFolderForDev = (props: {
         setEnabled(enabled);
       })
       .catch((e) =>
-        console.error(`Error while if dev tools were enabled: ${e}`)
+        console.error(`Error while if dev tools were enabled: ${e}`),
       );
   }, []);
 
@@ -34,12 +34,12 @@ export const CloneFolderForDev = (props: {
               new Progress(
                 `Creating ${props.modName} folder`,
                 `Creating ${props.modName} folder`,
-                0
-              )
+                0,
+              ),
             );
             await Backend.instance().cloneMod(
               props.modName,
-              `${props.modName}-dev`
+              `${props.modName}-dev`,
             );
             if (props.then !== undefined) {
               await props.then();
@@ -51,11 +51,11 @@ export const CloneFolderForDev = (props: {
         }}
         onFocus={() =>
           props.setInfo(
-            `Create an ${props.modName}-dev mod folder from your current ${props.modName} folder`
+            `Create an ${props.modName}-dev mod folder from your current ${props.modName} folder`,
           )
         }
       />
     );
   }
   return <div />;
-};
+}

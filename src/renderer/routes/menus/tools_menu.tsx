@@ -63,14 +63,14 @@ export default class ToolsMenu extends AbstractMenu<{
                   console.info('finished verifying successfully');
                   this.showMenu();
                   this.showPopupData(
-                    new PopupData(['Ok'], results, () => this.showMenu())
+                    new PopupData(['Ok'], results, () => this.showMenu()),
                   );
                 })
                 .catch((results) => {
                   console.info('finished verifying, issues reported.');
                   this.showMenu();
                   this.showPopupData(
-                    new PopupData(['Ok'], results, () => this.showMenu())
+                    new PopupData(['Ok'], results, () => this.showMenu()),
                   );
                 });
             }}
@@ -92,7 +92,7 @@ export default class ToolsMenu extends AbstractMenu<{
               switch (installType) {
                 case InstallType.Beta:
                   await switchToPrerelease(version, (p: Progress) =>
-                    this.showProgress(p)
+                    this.showProgress(p),
                   )
                     // .then(() => verify((p: Progress) => this.setProgress(p)))
                     .then(() => {
@@ -109,7 +109,7 @@ export default class ToolsMenu extends AbstractMenu<{
                   break;
                 case InstallType.PreRelease:
                   await switchToBeta(version, (p: Progress) =>
-                    this.showProgress(p)
+                    this.showProgress(p),
                   )
                     // .then(() => verify((p: Progress) => this.setProgress(p)))
                     .then(() => {
@@ -126,7 +126,7 @@ export default class ToolsMenu extends AbstractMenu<{
                   break;
                 default:
                   console.error(
-                    'Could not switch! Current version is unknown!'
+                    'Could not switch! Current version is unknown!',
                   );
                   alert('Could not switch! Current version is unknown!');
                   break;
@@ -152,7 +152,7 @@ export default class ToolsMenu extends AbstractMenu<{
               const root = await backend.getSdRoot();
               await backend.writeFile(
                 `${root}ultimate/mods/hdr-dev/ui/hdr_version.txt`,
-                'v0.69.420-dev'
+                'v0.69.420-dev',
               );
             }}
           />

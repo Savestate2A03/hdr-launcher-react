@@ -144,8 +144,8 @@ export default class Menu extends React.PureComponent {
             this.state.currentMenu == MenuType.Options
               ? ['Options']
               : this.state.currentMenu == MenuType.Tools
-              ? ['Tools']
-              : []
+                ? ['Tools']
+                : []
           }
         />
         <div className="app-body">

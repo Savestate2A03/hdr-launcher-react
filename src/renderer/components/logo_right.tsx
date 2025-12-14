@@ -1,6 +1,6 @@
 import logo from '../../../assets/logo_full.png';
 
-export const LogoRight = () => {
+export function LogoRight() {
   return (
     <div className="right-side" id="right-side">
       <div className="image">
@@ -8,4 +8,4 @@ export const LogoRight = () => {
       </div>
     </div>
   );
-};
+}

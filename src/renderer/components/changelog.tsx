@@ -23,8 +23,8 @@ export default class Changelog extends React.Component<Props> {
         await Backend.instance()
           .getJson(
             `https://github.com/HDR-Development/${getRepoName(
-              getInstallType(version)
-            )}/releases/download/${version.split('-')[0]}/CHANGELOG.md`
+              getInstallType(version),
+            )}/releases/download/${version.split('-')[0]}/CHANGELOG.md`,
           )
           .then((str) => (logs += `${str}\n`))
           .catch((e) => console.info(e));

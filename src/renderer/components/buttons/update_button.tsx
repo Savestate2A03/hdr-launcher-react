@@ -4,10 +4,10 @@ import * as update from '../../operations/update';
 import { FocusButton } from './focus_button';
 
 /// check for updates when the button is loaded
-const UpdateButton = (props: {
+function UpdateButton(props: {
   onClick: () => Promise<void>;
   onFocus: () => void;
-}) => {
+}) {
   const [available, setAvailable] = useState(false);
 
   const { onClick, onFocus } = props;
@@ -33,6 +33,6 @@ const UpdateButton = (props: {
       onFocus={() => onFocus()}
     />
   );
-};
+}
 
 export { UpdateButton as default };

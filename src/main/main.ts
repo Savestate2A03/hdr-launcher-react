@@ -45,18 +45,18 @@ const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  require('electron-debug')();
+  (async () => {(await import('electron-debug')).default();})();
 }
 
 const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
+  const installer = await import('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
+  const extensions = ['REACT_DEVELOPER_TOOLS'] as const;
 
   return installer
-    .default(
+    .default.installExtension(
       extensions.map((name) => installer[name]),
-      forceDownload
+      { 'forceDownload': forceDownload },
     )
     .catch(console.log);
 };
@@ -157,7 +157,7 @@ async function findEmulator() {
     console.error('Browserwindow was not defined!');
     dialog.showErrorBox(
       'Invalid window context!',
-      'Browser window was not defined! The application will now close'
+      'Browser window was not defined! The application will now close',
     );
     app.exit(0);
     return;
@@ -217,7 +217,7 @@ async function findSdcard() {
     console.error('Browserwindow was not defined!');
     dialog.showErrorBox(
       'Invalid window context!',
-      'Browser window was not defined! The application will now close'
+      'Browser window was not defined! The application will now close',
     );
     app.exit(0);
     return;
@@ -231,7 +231,7 @@ async function findSdcard() {
   if (selectedPath === undefined) {
     dialog.showErrorBox(
       'Error!',
-      'SD Card directory is required for the HDR launcher to function. We will now close.'
+      'SD Card directory is required for the HDR launcher to function. We will now close.',
     );
     app.quit();
     return;
@@ -249,7 +249,7 @@ async function findSdcard() {
     console.error(`SD Card directory not found at ${configDir}!`);
     dialog.showErrorBox(
       'SD Card folder not found!',
-      `SD Card directory not found at ${configDir}!`
+      `SD Card directory not found at ${configDir}!`,
     );
     Config.setSdcardPath('');
     app.quit();

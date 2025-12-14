@@ -78,7 +78,7 @@ export default function StageConfigMenu() {
             className="simple-button-bigger"
             onFocus={() => {}}
             autofocus
-          style={{margin: "4px 2px 4px 4px"}}
+            style={{ margin: '4px 2px 4px 4px' }}
           />
         ) : (
           <FocusButton
@@ -90,7 +90,7 @@ export default function StageConfigMenu() {
             className="simple-button-bigger"
             onFocus={() => {}}
             autofocus
-            style={{margin: "4px 2px 4px 4px"}}
+            style={{ margin: '4px 2px 4px 4px' }}
           />
         )}
         <StageConfigToggler />
@@ -103,7 +103,7 @@ export default function StageConfigMenu() {
             className="simple-button-bigger"
             onFocus={() => {}}
             autofocus
-          style={{margin: "4px 2px 4px 4px"}}
+            style={{ margin: '4px 2px 4px 4px' }}
           />
         ) : (
           <div />

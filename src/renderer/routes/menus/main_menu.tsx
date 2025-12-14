@@ -76,11 +76,11 @@ export default class MainMenu extends AbstractMenu<{
                               if (updated) {
                                 Backend.instance().relaunchApplication();
                               }
-                            })
+                            }),
                           );
                         }
-                      }
-                    )
+                      },
+                    ),
                   );
                 })
                 .catch((e) => {

@@ -17,7 +17,7 @@ export class PopupData {
   constructor(
     options: string[],
     text: string,
-    onSelect: (selected: string) => void
+    onSelect: (selected: string) => void,
   ) {
     this.options = options;
     this.text = text;

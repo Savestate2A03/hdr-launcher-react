@@ -26,7 +26,7 @@ export default function StageListBox(props: { category: Categories }) {
   const propName = props.category === 'Starter' ? 'starters' : 'counterpicks';
   const selectedStages = !page.useOfficial
     ? page[propName]
-    : officialStageList?.[propName] ?? [];
+    : (officialStageList?.[propName] ?? []);
   const disabled = page.useOfficial;
   const getOptions = useCallback(() => {
     return stages.map((stage) => stage?.display_name);
@@ -109,9 +109,7 @@ export default function StageListBox(props: { category: Categories }) {
               const newSelected = [];
               const info = new StageInfo();
               const firstAvailable = await info.getByDisplay(
-                (
-                  await info.list()
-                )[0]?.display_name
+                (await info.list())[0]?.display_name,
               );
               selectedStages.forEach((entry) => newSelected.push(entry));
               newSelected.push(firstAvailable);

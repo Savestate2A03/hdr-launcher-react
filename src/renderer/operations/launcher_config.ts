@@ -6,7 +6,7 @@ const CONFIG_PATH = 'ultimate/hdr-config';
 
 export async function setBoolean(
   setting: BooleanSetting,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<void> {
   return new Promise<void>(async (resolve, reject) => {
     try {

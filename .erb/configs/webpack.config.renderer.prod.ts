@@ -14,8 +14,8 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 
-const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 checkNodeEnv('production');
 deleteSourceMaps();

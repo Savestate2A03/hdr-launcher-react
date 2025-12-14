@@ -50,8 +50,8 @@ export class StageInfo {
 
 export const stageInfo: Record<string, { display_name: string }> = {
   // Random: { display_name: 'Random (All)', },
-  RandomNormal: { 
-    display_name: 'Random', 
+  RandomNormal: {
+    display_name: 'Random',
   },
   BattleField: {
     display_name: 'Battlefield',

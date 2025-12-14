@@ -30,7 +30,7 @@ interface StageConfigContextType {
 
 // Create the context with undefined as default (we'll handle this in the hook)
 const StageConfigContext = createContext<StageConfigContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface StageConfigProviderProps {
@@ -47,7 +47,7 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
   const [pages, setPages] = useState<Page[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [officialStageList, setOfficialStageList] = useState<StageList | null>(
-    null
+    null,
   );
 
   const addPage = useCallback(
@@ -55,16 +55,16 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       const newPages = [...pages];
       newPages.push(
         page ?? {
-          name: 'Page ' + (newPages.length + 1),
+          name: `Page ${newPages.length + 1}`,
           useOfficial: false,
           starters: [],
           counterpicks: [],
-        }
+        },
       );
       setPages(newPages);
       setCurrentPage(newPages.length - 1);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage]
+    [initialized, pages, setPages, currentPage, setCurrentPage],
   );
 
   const removePage = useCallback(
@@ -88,7 +88,7 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       }
       setCurrentPage(newCurrentPage);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage]
+    [initialized, pages, setPages, currentPage, setCurrentPage],
   );
 
   const setPage = useCallback(
@@ -97,7 +97,7 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       newPages[idx] = page;
       setPages(newPages);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage]
+    [initialized, pages, setPages, currentPage, setCurrentPage],
   );
 
   const value: StageConfigContextType = {

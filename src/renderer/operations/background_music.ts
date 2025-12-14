@@ -58,7 +58,7 @@ export default class BackgroundMusic {
         if (vol !== target_volume) {
           vol = Math.min(
             Math.max(vol + 0.05 * Math.sign(target_volume - vol), 0),
-            0.95
+            0.95,
           );
           music.volume = vol;
         } else {

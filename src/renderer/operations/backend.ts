@@ -123,7 +123,7 @@ export class Backend extends DefaultMessenger {
   cloneMod(
     src: string,
     dest: string,
-    progressCallback?: (p: Progress) => void
+    progressCallback?: (p: Progress) => void,
   ): Promise<string> {
     return this.customRequest('clone_mod', [src, dest], progressCallback);
   }
@@ -136,7 +136,7 @@ export class Backend extends DefaultMessenger {
   override customRequest(
     name: string,
     args: string[] | null,
-    progressCallback?: ((p: Progress) => void) | undefined
+    progressCallback?: ((p: Progress) => void) | undefined,
   ): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       super
@@ -157,7 +157,7 @@ export class NodeBackend implements BackendSupplier {
   invoke(
     call_name: string,
     args: string[] | null,
-    progressCallback?: (p: Progress) => void
+    progressCallback?: (p: Progress) => void,
   ): Promise<string> {
     const message = new Messages.Message(call_name, args);
     console.debug(`invoking on node backend:\n${JSON.stringify(message)}`);
@@ -179,7 +179,7 @@ export class NodeBackend implements BackendSupplier {
         })
         .catch((e: any) => {
           console.error(
-            `error while invoking on node backend. ${JSON.stringify(e)}`
+            `error while invoking on node backend. ${JSON.stringify(e)}`,
           );
           throw e;
         });

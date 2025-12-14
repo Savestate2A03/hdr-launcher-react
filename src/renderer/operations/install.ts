@@ -32,7 +32,7 @@ export function getRepoName(type: InstallType) {
 
 export async function installLatest(
   progressCallback?: (p: Progress) => void,
-  type?: InstallType
+  type?: InstallType,
 ) {
   if (typeof type === 'undefined') {
     console.info('defaulting to beta installation');
@@ -40,7 +40,7 @@ export async function installLatest(
       'switch-package.zip',
       'latest',
       InstallType.Beta,
-      progressCallback
+      progressCallback,
     );
   }
 
@@ -48,39 +48,39 @@ export async function installLatest(
     'switch-package.zip',
     'latest',
     type,
-    progressCallback
+    progressCallback,
   );
 }
 
 export async function switchToPrerelease(
   currentVersion: string,
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ) {
   return installArtifact(
     'to-prerelease.zip',
     currentVersion,
     InstallType.Beta,
-    progressCallback
+    progressCallback,
   ).then(() =>
     handleDeletions(
       currentVersion,
       'to_prerelease_deletions.json',
-      progressCallback
-    )
+      progressCallback,
+    ),
   );
 }
 
 export async function switchToBeta(
   currentVersion: string,
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ) {
   return installArtifact(
     'to-beta.zip',
     currentVersion,
     InstallType.PreRelease,
-    progressCallback
+    progressCallback,
   ).then(() =>
-    handleDeletions(currentVersion, 'to_beta_deletions.json', progressCallback)
+    handleDeletions(currentVersion, 'to_beta_deletions.json', progressCallback),
   );
 }
 
@@ -88,7 +88,7 @@ async function installArtifact(
   artifact: string,
   version: string,
   type: InstallType,
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ) {
   try {
     const backend = Backend.instance();
@@ -123,7 +123,7 @@ async function installArtifact(
     console.info(`downloading from: ${url}`);
     if (progressCallback) {
       progressCallback(
-        new Progress(`Downloading ${artifact}`, 'Downloading', null)
+        new Progress(`Downloading ${artifact}`, 'Downloading', null),
       );
     }
     await backend
@@ -135,7 +135,7 @@ async function installArtifact(
         }
       })
       .then(() =>
-        backend.unzip(`${downloads}hdr-install.zip`, sdroot, progressCallback)
+        backend.unzip(`${downloads}hdr-install.zip`, sdroot, progressCallback),
       )
       .then((result) => console.info(`Result of extraction: ${result}`))
       .catch((e) => {

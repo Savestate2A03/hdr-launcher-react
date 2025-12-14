@@ -12,11 +12,13 @@ const CONFIG_PATH = 'ultimate/hdr-config/';
 new StageInfo().list().then((stages) =>
   stages.forEach((stage) => {
     try {
-      require(`../../../assets/stage_previews/stage_2_${stage.name_id.toLowerCase()}.jpg`);
+      require(
+        `../../../assets/stage_previews/stage_2_${stage.name_id.toLowerCase()}.jpg`,
+      );
     } catch {
       console.warn(`Could not find stage preview for: ${stage.name_id}`);
     }
-  })
+  }),
 );
 
 export interface StageList {
@@ -103,7 +105,7 @@ async function loadPages(data: any): Promise<Page[]> {
   try {
     const pages: Page[] = [];
     for (let i = 0; i < data.pages.length; i++) {
-      const name = data.pages[i]?.name ?? 'Page ' + i;
+      const name = data.pages[i]?.name ?? `Page ${i}`;
       const useOfficial = data.pages[i]?.useOfficial ?? false;
       const stageList = await loadStageList(data.pages[i]);
       pages.push({
@@ -117,7 +119,7 @@ async function loadPages(data: any): Promise<Page[]> {
         name: 'Page 1',
         useOfficial: false,
         starters: [],
-        counterpicks: []
+        counterpicks: [],
       });
     }
     return pages;
@@ -127,8 +129,8 @@ async function loadPages(data: any): Promise<Page[]> {
         name: 'Page 1',
         useOfficial: false,
         starters: [],
-        counterpicks: []
-      }
+        counterpicks: [],
+      },
     ];
   }
 }
@@ -149,8 +151,8 @@ export async function loadStageConfig(location: string): Promise<StageConfig> {
               name: 'Page 1',
               useOfficial: false,
               starters: [],
-              counterpicks: []
-            }
+              counterpicks: [],
+            },
           ],
           officialStageList: officialStageList ?? undefined,
         });
@@ -166,8 +168,8 @@ export async function loadStageConfig(location: string): Promise<StageConfig> {
           const pages: Page[] = await loadPages(data);
           const officialStageList = await loadOfficialStageList();
           resolve({
-            enabled: enabled,
-            pages: pages,
+            enabled,
+            pages,
             officialStageList: officialStageList ?? undefined,
           });
         })
@@ -180,7 +182,7 @@ export async function loadStageConfig(location: string): Promise<StageConfig> {
 
 export async function saveStageConfig(
   location: string,
-  stageConfig: StageConfig
+  stageConfig: StageConfig,
 ): Promise<void> {
   return new Promise<void>(async (resolve, reject) => {
     try {

@@ -44,7 +44,7 @@ const always_ignore_files = [
 ];
 
 export default async function verify(
-  progressCallback?: (p: Progress) => void
+  progressCallback?: (p: Progress) => void,
 ): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
@@ -71,7 +71,7 @@ export default async function verify(
       await backend.downloadFile(
         `https://github.com/HDR-Development/${repoName}/releases/download/${versionStripped}/content_hashes.json`,
         hash_file,
-        (p: Progress) => reportProgress(p)
+        (p: Progress) => reportProgress(p),
       );
 
       let matches = true;
@@ -121,8 +121,8 @@ export default async function verify(
           new Progress(
             'Verifying Files',
             `File: ${path}`,
-            count / entries.length
-          )
+            count / entries.length,
+          ),
         );
 
         const exists = await backend.fileExists(sdroot + path);
@@ -141,7 +141,7 @@ export default async function verify(
             if (hash != expected_hash) {
               matches = false;
               console.error(
-                `hash was wrong for ${path}\nGot: ${hash}, Expected: ${expected_hash}`
+                `hash was wrong for ${path}\nGot: ${hash}, Expected: ${expected_hash}`,
               );
               wrong.push(path);
             }
@@ -149,7 +149,7 @@ export default async function verify(
           .catch((e) => {
             matches = false;
             console.error(
-              `Error while getting hash for path :${path}\nError: ${e}`
+              `Error while getting hash for path :${path}\nError: ${e}`,
             );
             errors.push(`${path}: ${e}`);
           });
@@ -160,7 +160,7 @@ export default async function verify(
       const expected_files: string[] = [];
       let unexpected_files: string[] = [];
       entries.forEach((element: any) =>
-        expected_files.push(element.path.replace(/\\/g, '/'))
+        expected_files.push(element.path.replace(/\\/g, '/')),
       );
 
       for (const folder of hdr_folders) {
@@ -168,8 +168,8 @@ export default async function verify(
           new Progress(
             `Checking ${folder}`,
             `Folder: ${folder}`,
-            count / hdr_folders.length
-          )
+            count / hdr_folders.length,
+          ),
         );
 
         // check the files in this directory
@@ -195,7 +195,7 @@ export default async function verify(
         const text =
           unexpected_files.length < 10
             ? `The following unexpected files were found which will be deleted:\n${unexpected_files.join(
-                '\n'
+                '\n',
               )}`
             : 'Multiple unexpected files were found in the HDR folders, which will be deleted.';
         const ok = confirm(text);
@@ -205,12 +205,12 @@ export default async function verify(
             backend.deleteFile(sdroot + file).catch((e) => {
               alert(`an error occurred while deleting file:\n${e}`);
               errors.push(e);
-            })
+            }),
           );
           unexpected_files = [];
         } else {
           alert(
-            'The files were not deleted. Be aware, this constitutes an nonstandard HDR install which may desync online.'
+            'The files were not deleted. Be aware, this constitutes an nonstandard HDR install which may desync online.',
           );
         }
       }
@@ -237,7 +237,7 @@ export default async function verify(
       // warn the user if there is a development.nro
       if (await backend.fileExists(sdroot + dev_nro_path)) {
         const ok = confirm(
-          'You have a development nro, would you like to delete it?'
+          'You have a development nro, would you like to delete it?',
         );
         if (ok) {
           await backend.deleteFile(sdroot + dev_nro_path);
@@ -272,8 +272,8 @@ export default async function verify(
           .then((str) => console.debug('deleted old launcher'))
           .catch((e) =>
             alert(
-              'Failed to delete old launcher nro for emulator, which will likely crash on game boot.'
-            )
+              'Failed to delete old launcher nro for emulator, which will likely crash on game boot.',
+            ),
           );
       }
 
@@ -282,19 +282,19 @@ export default async function verify(
         if (Number(api_version[0]) >= 1 && Number(api_version[1]) >= 7) {
           // check if hdr is enabled
           const hdr_enabled = await backend.isModEnabled(
-            'sd:/ultimate/mods/hdr'
+            'sd:/ultimate/mods/hdr',
           );
           const hdr_assets_enabled = await backend.isModEnabled(
-            'sd:/ultimate/mods/hdr-assets'
+            'sd:/ultimate/mods/hdr-assets',
           );
           const hdr_stages_enabled = await backend.isModEnabled(
-            'sd:/ultimate/mods/hdr-stages'
+            'sd:/ultimate/mods/hdr-stages',
           );
           const hdr_dev_enabled = await backend.isModEnabled(
-            'sd:/ultimate/mods/hdr-dev'
+            'sd:/ultimate/mods/hdr-dev',
           );
           const hdr_pr_enabled = await backend.isModEnabled(
-            'sd:/ultimate/mods/hdr-pr'
+            'sd:/ultimate/mods/hdr-pr',
           );
 
           if (!hdr_enabled) {
@@ -332,7 +332,7 @@ export default async function verify(
       }
       if (should_disable.length > 0) {
         result_str += `\nPlugins to please disable: \n${should_disable.join(
-          '\n'
+          '\n',
         )}`;
       }
       if (should_warn.length > 0) {

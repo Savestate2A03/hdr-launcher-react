@@ -3,10 +3,9 @@
  */
 
 import webpack from 'webpack';
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
-
-const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 const configuration: webpack.Configuration = {
   externals: [...Object.keys(externals || {})],
@@ -21,10 +20,9 @@ const configuration: webpack.Configuration = {
         use: {
           loader: 'ts-loader',
           options: {
-            // Remove this line to enable type checking in webpack builds
-            transpileOnly: true,
             compilerOptions: {
-              module: 'esnext',
+              module: 'NodeNext',
+              moduleResolution: 'NodeNext',
             },
           },
         },
@@ -44,9 +42,7 @@ const configuration: webpack.Configuration = {
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
-    fallback: {
-      "path": require.resolve("path-browserify")
-    },
+    fallback: { "path": false },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [webpackPaths.srcPath, 'node_modules'],
   },

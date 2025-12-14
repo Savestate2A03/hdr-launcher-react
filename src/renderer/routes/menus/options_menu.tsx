@@ -46,7 +46,7 @@ export default class OptionsMenu extends AbstractMenu<{
             text={'Skip Launcher\u00A0'}
             onFocus={() =>
               this.props.setInfo(
-                'Skip the launcher on boot unless updates are available.'
+                'Skip the launcher on boot unless updates are available.',
               )
             }
           />
@@ -65,7 +65,7 @@ export default class OptionsMenu extends AbstractMenu<{
           text={'Enable Dev Tools\u00A0'}
           onFocus={() =>
             this.props.setInfo(
-              'Enable the dev tools menu (for HDR developers and contributors)'
+              'Enable the dev tools menu (for HDR developers and contributors)',
             )
           }
         />
@@ -84,7 +84,7 @@ export default class OptionsMenu extends AbstractMenu<{
           text={'Verify Music\u00A0'}
           onFocus={() =>
             this.props.setInfo(
-              'Disable this if you wish to use music mods which conflict with HDR.'
+              'Disable this if you wish to use music mods which conflict with HDR.',
             )
           }
         />

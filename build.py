@@ -11,7 +11,7 @@ updater = ""
 
 for arg in sys.argv:
     if "ip" in arg:
-        if not "=" in arg:
+        if "=" not in arg:
             print("ip specified but not ip argument given!")
         else:
             ip = arg.split('=')[1]
@@ -26,7 +26,7 @@ for arg in sys.argv:
     if "help" in arg:
         print("usage:")
         print("ip=0.0.0.0 : send the plugin to the switch at the given IP")
-        print("electron : 'npm start'")
+        print("electron : 'yarn start'")
         print("listen : 'cargo skyline listen'")
         print("updater : enables the updater feature on the plugin")
         print("help : shows this help message.")
@@ -35,7 +35,8 @@ for arg in sys.argv:
 
 os.chdir("switch")
 
-success = os.system("cargo skyline build --release" + updater + no_npm);
+success = os.system("cargo skyline build --release" + updater + no_npm)
+
 if success != 0:
     exit("SWITCH BUILD FAILED!")
 
@@ -51,4 +52,4 @@ if listen:
 os.chdir(root_dir)
 
 if electron:
-    os.system("npm start")
+    os.system("yarn start")

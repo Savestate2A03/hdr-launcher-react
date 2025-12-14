@@ -1,5 +1,5 @@
-import { useStageConfig } from './stage_config_provider';
 import FocusTimer from 'renderer/operations/focus_singleton';
+import { useStageConfig } from './stage_config_provider';
 
 interface StageConfigTogglerProps {
   className?: string;
@@ -44,7 +44,7 @@ export default function StageConfigToggler({
       onClick={() => {
         handleToggle().catch((e) => console.error('Toggle failed:', e));
       }}
-      style={{margin: "4px 2px 4px 4px"}}
+      style={{ margin: '4px 2px 4px 4px' }}
     >
       Enabled&nbsp;
       <input

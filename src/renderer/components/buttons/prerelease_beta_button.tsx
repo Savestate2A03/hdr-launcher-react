@@ -3,10 +3,10 @@ import { Backend } from '../../operations/backend';
 import { FocusButton } from './focus_button';
 import { ScrollFocusButton } from './scroll_focus_button';
 
-export const PrereleaseBetaButton = (props: {
+export function PrereleaseBetaButton(props: {
   setInfo: (info: string) => void;
   onClick: (version: string) => void;
-}) => {
+}) {
   const [version, setVersion] = useState('...');
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export const PrereleaseBetaButton = (props: {
         setVersion(version);
       })
       .catch((e) =>
-        console.error(`Error while loading version for switch button: ${e}`)
+        console.error(`Error while loading version for switch button: ${e}`),
       );
   }, []);
 
@@ -39,7 +39,9 @@ export const PrereleaseBetaButton = (props: {
             setVersion(version);
           })
           .catch((e) =>
-            console.error(`Error while loading version for switch button: ${e}`)
+            console.error(
+              `Error while loading version for switch button: ${e}`,
+            ),
           );
       }}
       onFocus={() =>
@@ -47,4 +49,4 @@ export const PrereleaseBetaButton = (props: {
       }
     />
   );
-};
+}

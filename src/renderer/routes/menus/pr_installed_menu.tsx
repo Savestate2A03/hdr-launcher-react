@@ -46,7 +46,7 @@ export default class PrInstalledMenu extends AbstractMenu<{
             }}
             onFocus={() =>
               this.props.setInfo(
-                'Go and remove the PR build, and replace the hdr folder.'
+                'Go and remove the PR build, and replace the hdr folder.',
               )
             }
           />
