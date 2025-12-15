@@ -93,8 +93,17 @@ const configuration: webpack.Configuration = {
       {
         test: /\.(png|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
+        exclude: path.resolve(__dirname, '../../assets/stage_previews'),
         generator: {
           filename: 'static/[name][ext]',
+        },
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif)$/i,
+        include: path.resolve(__dirname, '../../assets/stage_previews'),
+        type: 'asset/resource',
+        generator: {
+          filename: 'static/stage_previews/[name][ext]',
         },
       },
       // music

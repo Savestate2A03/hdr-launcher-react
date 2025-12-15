@@ -1,7 +1,7 @@
 {
   "name": "hdr-launcher",
   "author": "techyCoder81",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "The HDR Launcher",
   "repository": "techyCoder81/hdr-launcher-react",
   "license": "MIT",
@@ -12,9 +12,8 @@
   ],
   "main": "./dist/main/main.js",
   "scripts": {
-    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "rebuild": "tsx ../../.erb/scripts/electron-rebuild.js",
     "postinstall": "npm run rebuild && npm run link-modules",
-    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
-  },
-  "dependencies": {}
+    "link-modules": "tsx ../../.erb/scripts/link-modules.ts"
+  }
 }

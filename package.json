@@ -119,6 +119,7 @@
     "@types/react-test-renderer": "19.1.0",
     "@types/terser-webpack-plugin": "5.2.0",
     "@types/webpack-bundle-analyzer": "4.7.0",
+    "@types/webpack-env": "1.18.8",
     "@typescript-eslint/eslint-plugin": "8.49.0",
     "@typescript-eslint/parser": "8.49.0",
     "browserslist-config-erb": "0.0.3",

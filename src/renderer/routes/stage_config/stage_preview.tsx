@@ -65,7 +65,7 @@ export function StagePreview() {
           top: 0,
           left: 0,
         }}
-        src={`/static/stage_2_${hoveredStage?.name_id.toLowerCase()}.jpg`}
+        src={`/static/stage_previews/stage_2_${hoveredStage?.name_id.toLowerCase()}.jpg`}
         alt="Preview"
         onError={({ currentTarget }) => {
           currentTarget.onerror = null; // prevents looping

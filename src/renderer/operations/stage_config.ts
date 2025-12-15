@@ -8,14 +8,19 @@ export const OFFICIAL_STAGE_CONFIG =
   'ultimate/mods/hdr-stages/tourney_mode_official.json';
 const CONFIG_PATH = 'ultimate/hdr-config/';
 
-// require() all of the stage previews
+const stagePreviewContext = require.context(
+  '../../../assets/stage_previews',
+  false,
+  /^\.\/stage_2_.*\.jpg$/
+);
+
+// Pre-load all stage previews so webpack bundles them
 new StageInfo().list().then(async (stages) => {
   for (let i = 0; i < stages.length; i++) {
     const stage = stages[i];
     try {
-      await import(
-        `../../../assets/stage_previews/stage_2_${stage.name_id.toLowerCase()}.jpg`
-      );
+      const imagePath = `./stage_2_${stage.name_id.toLowerCase()}.jpg`;
+      stagePreviewContext(imagePath);
     } catch {
       console.warn(`Could not find stage preview for: ${stage.name_id}`);
     }
@@ -87,7 +92,6 @@ async function loadOfficialStageList(): Promise<StageList | null> {
     if (!(await backend.fileExists(root + OFFICIAL_STAGE_CONFIG))) {
       return null;
     }
-
     const json = await backend.readFile(root + OFFICIAL_STAGE_CONFIG);
     const data = JSON.parse(json);
     const stageList = await loadStageList(data);
