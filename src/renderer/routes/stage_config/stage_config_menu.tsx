@@ -43,22 +43,19 @@ export default function StageConfigMenu() {
 
     loadStageConfig(ACTIVE_CONFIG_FILE)
       .then(async (stageConfig) => {
-        if (!stageConfig) {
-          alert('stage config is null!');
-          return;
-        }
+        if (!stageConfig) return;
         setEnabled(stageConfig.enabled);
         setHoveredStage(null);
         setPages(stageConfig.pages);
         setCurrentPage(0);
         setOfficialStageList(stageConfig.officialStageList ?? null);
-        const list = await new StageInfo().list();
-        try {
-          setStages(list);
-          setInitialized(true);
-        } catch (e) {
-          alert(`failed to set stage options: ${e}`);
-        }
+        new StageInfo()
+          .list()
+          .then((list) => {
+            setStages(list);
+            setInitialized(true);
+          })
+          .catch((e) => alert(`failed to set stage options: ${e}`));
       })
       .catch((e) => alert(`failed to preload stage config: ${e}`));
   }, [

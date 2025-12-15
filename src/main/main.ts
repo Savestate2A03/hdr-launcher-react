@@ -140,7 +140,7 @@ app
     await findEmulator();
     await findSdcard();
     await registerListeners();
-    
+
     // create the sdcard folder if its not there
     if (!fs.existsSync(Config.getSdcardPath())) {
       fs.mkdirSync(Config.getSdcardPath());
