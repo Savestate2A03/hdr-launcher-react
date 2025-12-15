@@ -133,16 +133,18 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-    await createWindow()
-      .then(findEmulator)
-      .then(findSdcard)
-      .then(registerListeners)
-      .then(() => {
-        // create the sdcard folder if its not there
-        if (!fs.existsSync(Config.getSdcardPath())) {
-          fs.mkdirSync(Config.getSdcardPath());
-        }
-      });
+    await createWindow();
+    if (mainWindow) {
+      mainWindow.show();
+    }
+    await findEmulator();
+    await findSdcard();
+    await registerListeners();
+    
+    // create the sdcard folder if its not there
+    if (!fs.existsSync(Config.getSdcardPath())) {
+      fs.mkdirSync(Config.getSdcardPath());
+    }
 
     app.on('activate', async () => {
       // On macOS it's common to re-create a window in the app when the
@@ -172,7 +174,7 @@ async function findEmulator() {
 
     if (response != 0) {
       app.exit(0);
-      return;
+      continue;
     }
 
     let selectedPath;
@@ -193,7 +195,7 @@ async function findEmulator() {
     if (!selectedPath || selectedPath.length < 1) {
       console.warn('User cancelled finding emulator!');
       app.exit(0);
-      return;
+      continue;
     }
     const ryuPath = selectedPath[0];
 

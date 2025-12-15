@@ -1,5 +1,4 @@
-import { React } from 'react';
-
+/* eslint-disable no-undef */
 type Styles = Record<string, string>;
 
 declare module '*.svg' {

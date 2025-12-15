@@ -55,7 +55,7 @@ export interface UpdateResult {
 
 export default async function update(
   progressCallback?: (p: Progress) => void,
-): Promise<UpdateResult | Error> {
+): Promise<UpdateResult> {
   try {
     const reportProgress = (prog: Progress) => {
       if (typeof progressCallback !== 'undefined') {
@@ -117,7 +117,7 @@ export default async function update(
         );
       } catch (e) {
         // this likely means that
-        return new Error(
+        throw new Error(
           `An error occurred while downloading upgrade.zip from version ${version}!\nError info: ${e}\nPlease report this in #help-questions in the HDR Discord, ` +
             `as this is likely a packaging issue (not a *you* issue).`,
         );
@@ -148,9 +148,9 @@ export default async function update(
     }
   } catch (e) {
     console.error(`During update: ${e}`);
-    return new Error(`During update: ${e}`);
+    throw new Error(`During update: ${e}`);
   }
-  return new Error('Unknown error during update');
+  throw new Error('Unknown error during update');
 }
 
 /**

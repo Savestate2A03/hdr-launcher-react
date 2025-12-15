@@ -43,6 +43,10 @@ export default function StageConfigMenu() {
 
     loadStageConfig(ACTIVE_CONFIG_FILE)
       .then(async (stageConfig) => {
+        if (!stageConfig) {
+          alert('stage config is null!');
+          return;
+        }
         setEnabled(stageConfig.enabled);
         setHoveredStage(null);
         setPages(stageConfig.pages);
