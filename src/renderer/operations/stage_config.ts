@@ -11,7 +11,7 @@ const CONFIG_PATH = 'ultimate/hdr-config/';
 const stagePreviewContext = require.context(
   '../../../assets/stage_previews',
   false,
-  /^\.\/stage_2_.*\.jpg$/
+  /^\.\/stage_2_.*\.jpg$/,
 );
 
 // Pre-load all stage previews so webpack bundles them
