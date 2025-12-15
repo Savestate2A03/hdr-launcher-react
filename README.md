@@ -30,7 +30,7 @@ Releases can be found on the [releases page](https://github.com/techyCoder81/hdr
 
 ## Setup
 
-1. Enable Yarn through Corepack if you haven't already: `corepack enable`.
+1. Enable Yarn through Corepack if you haven't already: `corepack enable`
 2. Install dependencies with Yarn:
    ```bash
    yarn install
