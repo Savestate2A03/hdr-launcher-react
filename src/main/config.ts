@@ -66,7 +66,7 @@ export default class Config {
   // Ensure that the config file only lives in one place on linux
   // Path is `/home/user/.config/hdr-launcher/launcher-config.json`
   private static configFilePath() {
-    if (os.platform() == 'linux') {
+    if (os.platform() === 'linux') {
       return `${xdg.config()}/hdr-launcher/${this.CONFIG_FILE}`;
     }
 

@@ -15,6 +15,10 @@ import log from 'electron-log';
 import * as fs from 'fs';
 import * as os from 'os';
 import { Responses } from 'nx-request-api';
+import {
+  installExtension,
+  REACT_DEVELOPER_TOOLS,
+} from 'electron-devtools-installer';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import Config from './config';
@@ -45,27 +49,23 @@ const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  (async () => {(await import('electron-debug')).default();})();
+  (async () => {
+    (await import('electron-debug')).default();
+  })();
 }
 
-const installExtensions = async () => {
-  const installer = await import('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'] as const;
-
-  return installer
-    .default.installExtension(
-      extensions.map((name) => installer[name]),
-      { 'forceDownload': forceDownload },
-    )
-    .catch(console.log);
-};
+app.whenReady().then(async () => {
+  if (isDebug) {
+    await installExtension(REACT_DEVELOPER_TOOLS, {
+      forceDownload: true,
+      loadExtensionOptions: { allowFileAccess: true },
+    })
+      .then((ext) => console.log(`Added Extension:  ${ext.name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+  }
+});
 
 const createWindow = async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
-
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
@@ -87,7 +87,7 @@ const createWindow = async () => {
     },
   });
 
-  mainWindow.loadURL(resolveHtmlPath('index.html'));
+  await mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -133,7 +133,7 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-    createWindow()
+    await createWindow()
       .then(findEmulator)
       .then(findSdcard)
       .then(registerListeners)
@@ -144,10 +144,10 @@ app
         }
       });
 
-    app.on('activate', () => {
+    app.on('activate', async () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) await createWindow();
     });
   })
   .catch(console.log);
@@ -193,7 +193,7 @@ async function findEmulator() {
     if (!selectedPath || selectedPath.length < 1) {
       console.warn('User cancelled finding emulator!');
       app.exit(0);
-      continue;
+      return;
     }
     const ryuPath = selectedPath[0];
 

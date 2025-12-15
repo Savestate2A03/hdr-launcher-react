@@ -15,6 +15,7 @@ export const FocusButton = React.forwardRef<
 >((props, ref) => {
   return (
     <button
+      type="button"
       ref={ref}
       style={props.style}
       className={props.className}

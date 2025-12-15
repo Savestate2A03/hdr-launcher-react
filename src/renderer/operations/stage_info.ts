@@ -33,7 +33,8 @@ export class StageInfo {
   private loadCache() {
     if (StageInfo.display_map.size == 0) {
       const ids = Object.keys(stageInfo);
-      for (const nameId of ids) {
+      for (let i = 0; i < ids.length; i++) {
+        const nameId = ids[i];
         const display = stageInfo[nameId]?.display_name;
         StageInfo.display_map.set(display, {
           name_id: nameId,

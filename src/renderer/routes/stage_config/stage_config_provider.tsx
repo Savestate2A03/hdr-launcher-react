@@ -4,6 +4,7 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useMemo,
 } from 'react';
 import { Page, StageList } from 'renderer/operations/stage_config';
 import { Stage } from 'renderer/operations/stage_info';
@@ -37,9 +38,7 @@ interface StageConfigProviderProps {
   children: ReactNode;
 }
 
-export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
-  children,
-}) => {
+export function StageConfigProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false);
   const [stages, setStages] = useState<Stage[]>([]);
   const [hoveredStage, setHoveredStage] = useState(null as Stage | null);
@@ -64,7 +63,7 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       setPages(newPages);
       setCurrentPage(newPages.length - 1);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage],
+    [pages, setPages, setCurrentPage],
   );
 
   const removePage = useCallback(
@@ -88,7 +87,7 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       }
       setCurrentPage(newCurrentPage);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage],
+    [pages, setPages, currentPage, setCurrentPage],
   );
 
   const setPage = useCallback(
@@ -97,35 +96,49 @@ export const StageConfigProvider: React.FC<StageConfigProviderProps> = ({
       newPages[idx] = page;
       setPages(newPages);
     },
-    [initialized, pages, setPages, currentPage, setCurrentPage],
+    [pages, setPages],
   );
 
-  const value: StageConfigContextType = {
-    initialized,
-    setInitialized,
-    stages,
-    setStages,
-    hoveredStage,
-    setHoveredStage,
-    enabled,
-    setEnabled,
-    pages,
-    setPages,
-    addPage,
-    setPage,
-    removePage,
-    currentPage,
-    setCurrentPage,
-    officialStageList,
-    setOfficialStageList,
-  };
+  const value = useMemo(
+    () => ({
+      initialized,
+      setInitialized,
+      stages,
+      setStages,
+      hoveredStage,
+      setHoveredStage,
+      enabled,
+      setEnabled,
+      pages,
+      setPages,
+      addPage,
+      setPage,
+      removePage,
+      currentPage,
+      setCurrentPage,
+      officialStageList,
+      setOfficialStageList,
+    }),
+    [
+      addPage,
+      currentPage,
+      enabled,
+      hoveredStage,
+      initialized,
+      officialStageList,
+      pages,
+      removePage,
+      setPage,
+      stages,
+    ],
+  );
 
   return (
     <StageConfigContext.Provider value={value}>
       {children}
     </StageConfigContext.Provider>
   );
-};
+}
 
 // Custom hook to use the StageConfig context
 export const useStageConfig = (): StageConfigContextType => {

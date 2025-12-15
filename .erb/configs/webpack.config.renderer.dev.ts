@@ -7,11 +7,10 @@ import chalk from 'chalk';
 import { merge } from 'webpack-merge';
 import { execSync, spawn } from 'child_process';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
-import { WebpackAssetsManifest } from 'webpack-assets-manifest';
-
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -34,8 +33,8 @@ if (
 ) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn postinstall"'
-    )
+      'The DLL files are missing. Sit back while we build them for you with "yarn postinstall"',
+    ),
   );
   execSync('yarn postinstall');
 }
@@ -210,7 +209,7 @@ const configuration: webpack.Configuration = {
       let args = ['start:main'];
       if (process.env.MAIN_ARGS) {
         args = args.concat(
-          ['--', ...process.env.MAIN_ARGS.matchAll(/"[^"]+"|[^\s"]+/g)].flat()
+          ['--', ...process.env.MAIN_ARGS.matchAll(/"[^"]+"|[^\s"]+/g)].flat(),
         );
       }
       spawn('yarn', args, {

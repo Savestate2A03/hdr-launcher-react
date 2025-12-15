@@ -12,7 +12,69 @@ const BACKGROUND_COLOR = 'var(--main-button-bg-color)';
 const LEGACY_CONFIG_FILE =
   'ultimate/mods/hdr-stages/ui/param/database/ui_stage_db.prcxml';
 
+/**
+ * Represents a row in the stage list window, including a combo box (dropdown) and a 'remove' button
+ * @param onChange what to do if the selection changes
+ * @param onRemove what to do if the remove button is pressed
+ * @param selected the selected value
+ * @returns void
+ */
+function StageListItem(props: {
+  options: string[];
+  onChange: (item: { target: { value: string } }) => void;
+  onRemove: () => void;
+  selected: Stage;
+  onHover?: (stage: Stage) => void;
+  disabled?: boolean;
+}) {
+  const { disabled, onChange, selected, onHover, options, onRemove } = props;
+  return (
+    <div>
+      <FocusCombo
+        className="hover-color"
+        style={{
+          width: disabled ? '100%' : '90%',
+          color: 'white',
+          fontSize: 'large',
+          paddingTop: 3,
+          paddingBottom: 3,
+        }}
+        onChange={onChange}
+        forcedValue={selected?.display_name}
+        onFocus={() => {
+          if (onHover) {
+            onHover(selected);
+          }
+        }}
+        options={options}
+        disabled={disabled}
+      />
+      {!disabled && (
+        <FocusButton
+          className="hover-color"
+          style={{
+            width: '10%',
+            color: 'pink',
+            fontWeight: 'bold',
+            fontSize: 'large',
+            paddingTop: 3,
+            paddingBottom: 1,
+          }}
+          text="X"
+          onFocus={() => {
+            if (onHover) {
+              onHover(selected);
+            }
+          }}
+          onClick={onRemove}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function StageListBox(props: { category: Categories }) {
+  const { category } = props;
   const {
     initialized,
     stages,
@@ -23,14 +85,14 @@ export default function StageListBox(props: { category: Categories }) {
     officialStageList,
   } = useStageConfig();
   const page = pages[currentPage];
-  const propName = props.category === 'Starter' ? 'starters' : 'counterpicks';
+  const propName = category === 'Starter' ? 'starters' : 'counterpicks';
   const selectedStages = !page.useOfficial
     ? page[propName]
     : (officialStageList?.[propName] ?? []);
   const disabled = page.useOfficial;
   const getOptions = useCallback(() => {
     return stages.map((stage) => stage?.display_name);
-  }, [initialized, stages]);
+  }, [stages]);
   const options = getOptions();
 
   return (
@@ -53,7 +115,7 @@ export default function StageListBox(props: { category: Categories }) {
           }}
           className="border-bottom"
         >
-          {props.category}s
+          {category}s
         </h2>
         {options ? (
           selectedStages.map((entry, idx) => (
@@ -75,7 +137,7 @@ export default function StageListBox(props: { category: Categories }) {
                 const newSelected: Stage[] = [];
                 console.info(`ignoring: ${idx}`);
                 selectedStages.forEach((entry, thisIdx) => {
-                  if (idx != thisIdx) {
+                  if (idx !== thisIdx) {
                     newSelected.push(entry);
                   }
                 });
@@ -125,66 +187,6 @@ export default function StageListBox(props: { category: Categories }) {
           <div />
         )}
       </div>
-    </div>
-  );
-}
-
-/**
- * Represents a row in the stage list window, including a combo box (dropdown) and a 'remove' button
- * @param props.onChange what to do if the selection changes
- * @param props.onRemove what to do if the remove button is pressed
- * @param props.selected the selected value
- * @returns void
- */
-function StageListItem(props: {
-  options: string[];
-  onChange: (item: { target: { value: string } }) => void;
-  onRemove: () => void;
-  selected: Stage;
-  onHover?: (stage: Stage) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div>
-      <FocusCombo
-        className="hover-color"
-        style={{
-          width: props.disabled ? '100%' : '90%',
-          color: 'white',
-          fontSize: 'large',
-          paddingTop: 3,
-          paddingBottom: 3,
-        }}
-        onChange={props.onChange}
-        forcedValue={props.selected?.display_name}
-        onFocus={() => {
-          if (props.onHover) {
-            props.onHover(props.selected);
-          }
-        }}
-        options={props.options}
-        disabled={props.disabled}
-      />
-      {!props.disabled && (
-        <FocusButton
-          className="hover-color"
-          style={{
-            width: '10%',
-            color: 'pink',
-            fontWeight: 'bold',
-            fontSize: 'large',
-            paddingTop: 3,
-            paddingBottom: 1,
-          }}
-          text="X"
-          onFocus={() => {
-            if (props.onHover) {
-              props.onHover(props.selected);
-            }
-          }}
-          onClick={props.onRemove}
-        />
-      )}
     </div>
   );
 }

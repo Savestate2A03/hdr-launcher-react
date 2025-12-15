@@ -10,12 +10,11 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
-import { WebpackAssetsManifest } from 'webpack-assets-manifest';
-
 
 checkNodeEnv('production');
 deleteSourceMaps();

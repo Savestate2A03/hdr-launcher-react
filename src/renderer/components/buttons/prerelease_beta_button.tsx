@@ -8,6 +8,7 @@ export function PrereleaseBetaButton(props: {
   onClick: (version: string) => void;
 }) {
   const [version, setVersion] = useState('...');
+  const { onClick, setInfo } = props;
 
   useEffect(() => {
     Backend.instance()
@@ -32,7 +33,7 @@ export function PrereleaseBetaButton(props: {
       text={`Install ${buttonText}\u00A0`}
       className="smaller-main-button"
       onClick={async () => {
-        props.onClick(version);
+        onClick(version);
         Backend.instance()
           .getVersion()
           .then((version) => {
@@ -44,9 +45,7 @@ export function PrereleaseBetaButton(props: {
             ),
           );
       }}
-      onFocus={() =>
-        props.setInfo(`Switch to the ${buttonText} version of HDR`)
-      }
+      onFocus={() => setInfo(`Switch to the ${buttonText} version of HDR`)}
     />
   );
 }

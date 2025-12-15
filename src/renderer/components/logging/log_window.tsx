@@ -2,27 +2,28 @@ import * as React from 'react';
 import { Level, Logs } from '../../operations/log_singleton';
 import { LogListener } from '../../operations/log_listener';
 import { LogList } from './log_list';
+import type { LogList as LogListType } from '../../operations/log_singleton';
 
 /**
  * log window implementation
  */
-export class LogWindow extends React.Component implements LogListener {
-  state = {
-    logs: Logs.instance().getAll(),
-  };
-
-  update() {
-    this.setState({ logs: Logs.instance().getAll() });
-  }
-
+export class LogWindow
+  extends React.Component<{}, { logs: LogListType }>
+  implements LogListener
+{
   /** constructor */
   constructor(props: {} | Readonly<{}>) {
     super(props);
+    this.state = { logs: Logs.instance().getAll() };
     Logs.instance().registerChangeCallback(this);
   }
 
   componentWillUnmount(): void {
     Logs.instance().unregisterChangeCallback(this);
+  }
+
+  update() {
+    this.setState({ logs: Logs.instance().getAll() });
   }
 
   render() {
@@ -51,6 +52,7 @@ export class LogWindow extends React.Component implements LogListener {
           {getOption('ERROR')}
         </select>
         <button
+          type="button"
           className="simple-button inline"
           onClick={() => {
             Logs.instance().clear();
@@ -59,6 +61,7 @@ export class LogWindow extends React.Component implements LogListener {
           &nbsp;Clear Logs&nbsp;
         </button>
         <button
+          type="button"
           className="simple-button inline"
           onClick={async () => Logs.instance().save()}
         >

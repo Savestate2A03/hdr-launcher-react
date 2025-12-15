@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { skyline } from 'nx-request-api';
 import { Backend, NodeBackend } from '../../operations/backend';
 import '../../styles/progress.css';
 import InfoBox from './info_box';
@@ -9,7 +10,6 @@ import { CheckingInstalled } from './checking_installed';
 import ToolsMenu from './tools_menu';
 import OptionsMenu from './options_menu';
 import NotInstalledMenu from './not_installed_menu';
-import { skyline } from 'nx-request-api';
 import PrInstalledMenu from './pr_installed_menu';
 
 export enum MenuType {
@@ -24,71 +24,45 @@ export enum MenuType {
 /**
  * main menu implementation
  */
-export default class Menu extends React.PureComponent {
-  state = {
-    currentMenu: MenuType.CheckingInstalled,
-    version: 'unknown',
-    info: '  ',
-  };
+export default class Menu extends React.PureComponent<
+  {},
+  {
+    currentMenu: MenuType;
+    version: string;
+    info: string;
+  }
+> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      currentMenu: MenuType.CheckingInstalled,
+      version: 'unknown',
+      info: '  ',
+    };
+  }
 
-  switchTo(menu: MenuType) {
-    this.setState({
-      currentMenu: menu,
-      version: this.state.version,
-      info: this.state.info,
-    });
+  componentDidMount() {
     this.loadVersion();
-
-    // assign button actions for switch
-    skyline.setButtonAction('X', () => {});
-    switch (this.state.currentMenu) {
-      case MenuType.Options:
-        skyline.setButtonAction('B', () => this.switchTo(MenuType.MainMenu));
-        break;
-      case MenuType.Tools:
-        skyline.setButtonAction('B', () => this.switchTo(MenuType.MainMenu));
-        break;
-      default:
-        skyline.setButtonAction('B', () => {});
-        break;
-    }
   }
 
   setVersion(version: string) {
     console.debug(`setting version: ${version}`);
-    this.setState({
-      currentMenu: this.state.currentMenu,
+    this.setState((prevState) => ({
+      currentMenu: prevState.currentMenu,
       version,
-      info: this.state.info,
-    });
-  }
-
-  loadVersion() {
-    Backend.instance()
-      .getVersion()
-      .then((ver) => {
-        console.debug(`loaded version: ${ver}`);
-        this.setVersion(ver);
-      })
-      .catch((e) => console.error(`console error: ${e}`));
-  }
-
-  setInfo(info: string) {
-    this.setState({
-      currentMenu: this.state.currentMenu,
-      version: this.state.version,
-      info,
-    });
+      info: prevState.info,
+    }));
   }
 
   getMenu() {
-    switch (this.state.currentMenu) {
+    const { currentMenu, version, info } = this.state;
+    switch (currentMenu) {
       case MenuType.Options:
         return (
           <OptionsMenu
             setInfo={(info: string) => this.setInfo(info)}
             switchTo={(menu: MenuType) => this.switchTo(menu)}
-            version={this.state.version}
+            version={version}
           />
         );
       case MenuType.Tools:
@@ -103,11 +77,17 @@ export default class Menu extends React.PureComponent {
           <CheckingInstalled
             onComplete={(installed: string | null) => {
               console.info(installed);
-              installed !== null
-                ? installed.endsWith('pr')
-                  ? this.switchTo(MenuType.PrInstalled)
-                  : this.switchTo(MenuType.MainMenu)
-                : this.switchTo(MenuType.NotInstalled);
+
+              if (installed === null) {
+                this.switchTo(MenuType.NotInstalled);
+                return;
+              }
+
+              if (installed.endsWith('pr')) {
+                this.switchTo(MenuType.PrInstalled);
+              } else {
+                this.switchTo(MenuType.MainMenu);
+              }
             }}
           />
         );
@@ -135,15 +115,59 @@ export default class Menu extends React.PureComponent {
     }
   }
 
+  setInfo(info: string) {
+    console.debug(`setting info: ${info}`);
+    this.setState((prevState) => ({
+      currentMenu: prevState.currentMenu,
+      version: prevState.version,
+      info,
+    }));
+  }
+
+  loadVersion() {
+    Backend.instance()
+      .getVersion()
+      .then((ver) => {
+        console.debug(`loaded version: ${ver}`);
+        this.setVersion(ver);
+      })
+      .catch((e) => console.error(`console error: ${e}`));
+  }
+
+  switchTo(menu: MenuType) {
+    this.setState((prevState) => ({
+      currentMenu: menu,
+      version: prevState.version,
+      info: prevState.info,
+    }));
+    this.loadVersion();
+
+    // assign button actions for switch
+    skyline.setButtonAction('X', () => {});
+    const { currentMenu } = this.state;
+    switch (currentMenu) {
+      case MenuType.Options:
+        skyline.setButtonAction('B', () => this.switchTo(MenuType.MainMenu));
+        break;
+      case MenuType.Tools:
+        skyline.setButtonAction('B', () => this.switchTo(MenuType.MainMenu));
+        break;
+      default:
+        skyline.setButtonAction('B', () => {});
+        break;
+    }
+  }
+
   render() {
+    const { version, currentMenu, info } = this.state;
     return (
       <div className="full">
         <Header
-          version={this.state.version}
+          version={version}
           submenu={
-            this.state.currentMenu == MenuType.Options
+            currentMenu === MenuType.Options
               ? ['Options']
-              : this.state.currentMenu == MenuType.Tools
+              : currentMenu === MenuType.Tools
                 ? ['Tools']
                 : []
           }
@@ -154,12 +178,8 @@ export default class Menu extends React.PureComponent {
           </div>
           <LogoRight />
         </div>
-        <InfoBox text={this.state.info} />
+        <InfoBox text={info} />
       </div>
     );
-  }
-
-  componentDidMount() {
-    this.loadVersion();
   }
 }

@@ -15,14 +15,16 @@ function HeaderInner(props: { version: string; submenu: string[] }) {
       .catch((e) => alert(e));
   }, []);
 
+  const { submenu, version } = props;
+
   return (
     <div id="header" className="header">
       <p id="title" className="header-item">
         HDR {Backend.platformName()} Launcher{' '}
-        {props.submenu.length > 0 ? ` > ${props.submenu.join('>')}` : ''}
+        {submenu.length > 0 ? ` > ${submenu.join('>')}` : ''}
       </p>
       <p id="version" className="header-right">
-        HDR {props.version}, Launcher v{launcherVersion}
+        HDR {version}, Launcher v{launcherVersion}
       </p>
     </div>
   );

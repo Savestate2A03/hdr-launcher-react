@@ -24,34 +24,32 @@ export function CloneFolderForDev(props: {
   }, []);
 
   if (enabled) {
+    const { modName, showProgress, onComplete, then, setInfo } = props;
     return (
       <ScrollFocusButton
-        text={`Create ${props.modName}-dev\u00A0`}
+        text={`Create ${modName}-dev\u00A0`}
         className="smaller-main-button"
         onClick={async () => {
           try {
-            props.showProgress(
+            showProgress(
               new Progress(
-                `Creating ${props.modName} folder`,
-                `Creating ${props.modName} folder`,
+                `Creating ${modName} folder`,
+                `Creating ${modName} folder`,
                 0,
               ),
             );
-            await Backend.instance().cloneMod(
-              props.modName,
-              `${props.modName}-dev`,
-            );
-            if (props.then !== undefined) {
-              await props.then();
+            await Backend.instance().cloneMod(modName, `${modName}-dev`);
+            if (then !== undefined) {
+              await then();
             }
-            props.onComplete();
+            onComplete();
           } catch (e) {
-            alert(`Error while cloning ${props.modName}: ${e}`);
+            alert(`Error while cloning ${modName}: ${e}`);
           }
         }}
         onFocus={() =>
-          props.setInfo(
-            `Create an ${props.modName}-dev mod folder from your current ${props.modName} folder`,
+          setInfo(
+            `Create an ${modName}-dev mod folder from your current ${modName} folder`,
           )
         }
       />

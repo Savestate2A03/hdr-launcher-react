@@ -9,6 +9,62 @@ import { useStageConfig } from './stage_config_provider';
 const MAX_PAGES = 8;
 const BACKGROUND_COLOR = 'var(--main-button-bg-color)';
 
+/**
+ * Represents a row in the stage list window, including a combo box (dropdown) and a 'remove' button
+ * @param props.page the current page
+ * @returns void
+ */
+function PageItem(props: { idx: number; onHover?: (page: Page) => void }) {
+  const { pages, removePage, currentPage, setCurrentPage, setHoveredStage } =
+    useStageConfig();
+  const disabled = pages.length <= 1;
+  const { idx, onHover } = props;
+  return (
+    <div>
+      <FocusButton
+        className={`hover-color${idx === currentPage ? '-selected' : ''}`}
+        text={pages[idx].name}
+        style={{
+          width: disabled ? '100%' : '80%',
+          color: 'white',
+          fontSize: 'large',
+          border: 1,
+          paddingTop: 3,
+          paddingBottom: 3,
+        }}
+        onClick={() => {
+          setCurrentPage(idx);
+          setHoveredStage(null);
+        }}
+        onFocus={() => {}}
+      />
+      {!disabled && (
+        <FocusButton
+          className="hover-color"
+          style={{
+            width: '20%',
+            color: 'pink',
+            fontWeight: 'bold',
+            fontSize: 'large',
+            paddingTop: 3,
+            paddingBottom: 1,
+          }}
+          text="X"
+          onFocus={() => {
+            if (onHover) {
+              onHover(pages[idx]);
+            }
+          }}
+          onClick={() => {
+            removePage(idx);
+            setHoveredStage(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function StagePager() {
   const { initialized, pages, addPage, currentPage, setHoveredStage } =
     useStageConfig();
@@ -65,61 +121,6 @@ export default function StagePager() {
           <div />
         )}
       </div>
-    </div>
-  );
-}
-
-/**
- * Represents a row in the stage list window, including a combo box (dropdown) and a 'remove' button
- * @param props.page the current page
- * @returns void
- */
-function PageItem(props: { idx: number; onHover?: (page: Page) => void }) {
-  const { pages, removePage, currentPage, setCurrentPage, setHoveredStage } =
-    useStageConfig();
-  const disabled = pages.length <= 1;
-  return (
-    <div>
-      <FocusButton
-        className={`hover-color${props.idx === currentPage ? '-selected' : ''}`}
-        text={pages[props.idx].name}
-        style={{
-          width: disabled ? '100%' : '80%',
-          color: 'white',
-          fontSize: 'large',
-          border: 1,
-          paddingTop: 3,
-          paddingBottom: 3,
-        }}
-        onClick={() => {
-          setCurrentPage(props.idx);
-          setHoveredStage(null);
-        }}
-        onFocus={() => {}}
-      />
-      {!disabled && (
-        <FocusButton
-          className="hover-color"
-          style={{
-            width: '20%',
-            color: 'pink',
-            fontWeight: 'bold',
-            fontSize: 'large',
-            paddingTop: 3,
-            paddingBottom: 1,
-          }}
-          text="X"
-          onFocus={() => {
-            if (props.onHover) {
-              props.onHover(pages[props.idx]);
-            }
-          }}
-          onClick={() => {
-            removePage(props.idx);
-            setHoveredStage(null);
-          }}
-        />
-      )}
     </div>
   );
 }

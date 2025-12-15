@@ -48,8 +48,8 @@ export default class MainMenu extends AbstractMenu<{
         />
         <UpdateButton
           onClick={() => {
-            return new Promise<void>(async (resolve, reject) => {
-              await update((p: Progress) => this.showProgress(p))
+            return new Promise<void>((resolve, reject) => {
+              update((p: Progress) => this.showProgress(p))
                 .then((result) => {
                   const { updated, text } = result;
                   console.info('finished updating');
@@ -60,7 +60,7 @@ export default class MainMenu extends AbstractMenu<{
                       ['Ok', 'See changes list'],
                       'Your installation is up to date.',
                       (selected) => {
-                        if (selected == 'Ok') {
+                        if (selected === 'Ok') {
                           this.showMenu();
                           resolve();
                           // relaunch on switch

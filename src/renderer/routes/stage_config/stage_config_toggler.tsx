@@ -25,6 +25,7 @@ export default function StageConfigToggler({
 
   return (
     <button
+      type="button"
       className={className}
       autoFocus={autofocus}
       onMouseMove={(e) => e.currentTarget.focus()}

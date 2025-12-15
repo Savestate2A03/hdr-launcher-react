@@ -3,7 +3,7 @@ export default class BackgroundMusic {
 
   music: HTMLAudioElement;
 
-  fadeInterval: NodeJS.Timer | null = null;
+  fadeInterval: NodeJS.Timeout | null = null;
 
   public static singleton(): BackgroundMusic {
     if (BackgroundMusic.instance === undefined) {
@@ -29,11 +29,15 @@ export default class BackgroundMusic {
   }
 
   public play(): Promise<void> {
-    return new Promise<void>(() => this.music.play());
+    return new Promise<void>(() => {
+      this.music.play();
+    });
   }
 
   public pause(): Promise<void> {
-    return new Promise<void>(() => this.music.pause());
+    return new Promise<void>(() => {
+      this.music.pause();
+    });
   }
 
   public fadeOut(): Promise<number> {
@@ -44,8 +48,8 @@ export default class BackgroundMusic {
     return this.fadeTo(0.95);
   }
 
-  public fadeTo(target_volume: number): Promise<number> {
-    target_volume = Math.min(Math.max(0, target_volume), 0.95);
+  public fadeTo(intended_target_volume: number): Promise<number> {
+    const target_volume = Math.min(Math.max(0, intended_target_volume), 0.95);
     // if we are already fading, cancel the previous fade
     if (this.fadeInterval !== null) {
       clearInterval(this.fadeInterval);
@@ -54,7 +58,7 @@ export default class BackgroundMusic {
     let vol = this.music.volume;
 
     return new Promise<number>((resolve) => {
-      BackgroundMusic.singleton().fadeInterval = setInterval(function () {
+      BackgroundMusic.singleton().fadeInterval = setInterval(() => {
         if (vol !== target_volume) {
           vol = Math.min(
             Math.max(vol + 0.05 * Math.sign(target_volume - vol), 0),

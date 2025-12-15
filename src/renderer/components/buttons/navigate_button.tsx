@@ -9,14 +9,15 @@ export function NavigateButton(props: {
   onFocus?: () => void;
 }) {
   const navigate = useNavigate();
+  const { text, className, onFocus, page } = props;
   return (
     <FocusButton
-      text={`${props.text}\u00A0`}
-      className={props.className}
+      text={`${text}\u00A0`}
+      className={className}
       onClick={() => {
-        navigate(props.page);
+        navigate(page);
       }}
-      onFocus={props.onFocus}
+      onFocus={onFocus}
     />
   );
 }

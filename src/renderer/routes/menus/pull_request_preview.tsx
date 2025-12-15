@@ -1,25 +1,26 @@
 import { Remark } from 'react-remark';
 
 export function PullRequestPreview(props: { pullRequest: any }) {
+  const { pullRequest } = props;
   return (
     <div className="full">
       <h1 style={{ color: 'white' }} className="border-bottom">
-        {props.pullRequest.title}
+        {pullRequest.title}
       </h1>
       <h4
         style={{ color: 'white', paddingTop: '5px', paddingBottom: '5px' }}
         className="border-bottom"
       >
         Labels:{' '}
-        {props.pullRequest.labels.map((label: any) => (
+        {pullRequest.labels.map((label: any) => (
           <span style={{ padding: '3px' }}>
             [<span style={{ color: 'lightgreen' }}>{String(label.name)}</span>]
           </span>
         ))}
       </h4>
-      {props.pullRequest.labels.filter((label: any) =>
+      {pullRequest.labels.filter((label: any) =>
         String(label.name).includes('includes assets'),
-      ).length != 0 ? (
+      ).length !== 0 ? (
         <h4
           style={{ color: 'yellow', paddingTop: '5px', paddingBottom: '5px' }}
           className="border-bottom"
@@ -32,7 +33,7 @@ export function PullRequestPreview(props: { pullRequest: any }) {
       )}
       <div className="scrolling-fit">
         <p style={{ color: 'white', paddingTop: '10px', paddingLeft: '18px' }}>
-          <Remark>{props.pullRequest.body}</Remark>
+          <Remark>{pullRequest.body}</Remark>
         </p>
       </div>
     </div>

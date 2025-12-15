@@ -11,13 +11,20 @@ enum ContentType {
 /**
  * header implementation
  */
-export default class Sidebar extends React.PureComponent {
-  state = {
-    mode: ContentType.Changelogs,
-  };
+export default class Sidebar extends React.PureComponent<
+  {},
+  { mode: ContentType }
+> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      mode: ContentType.Changelogs,
+    };
+  }
 
   getContent() {
-    switch (this.state.mode) {
+    const { mode } = this.state;
+    switch (mode) {
       case ContentType.Logs:
         return (
           <div className="sidebar-content">

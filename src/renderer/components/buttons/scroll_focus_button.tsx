@@ -12,15 +12,16 @@ export function ScrollFocusButton(props: {
   onFocus?: () => void;
 }) {
   const selfRef = useRef<HTMLButtonElement>(null);
+  const { className, autofocus, onFocus, onClick, text, children } = props;
 
   return (
     <FocusButton
       ref={selfRef}
-      className={props.className}
-      autofocus={props.autofocus}
+      className={className}
+      autofocus={autofocus}
       onFocus={() => {
-        if (props.onFocus) {
-          props.onFocus();
+        if (onFocus) {
+          onFocus();
         }
         if (selfRef == null) {
           console.warn('Self ref not found for ScrollFocusButton!');
@@ -62,9 +63,9 @@ export function ScrollFocusButton(props: {
           }
         }
       }}
-      onClick={props.onClick}
-      text={props.text}
-      children={props.children}
+      onClick={onClick}
+      text={text}
+      children={children}
     />
   );
 }

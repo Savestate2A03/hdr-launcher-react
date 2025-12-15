@@ -114,7 +114,9 @@ export class Backend extends DefaultMessenger {
   /** request to relaunch the application (does nothing on pc) */
   relaunchApplication(): Promise<string> {
     if (Backend.isNode()) {
-      return new Promise<string>((resolve) => resolve('relaunch is NOP on PC'));
+      return new Promise<string>((resolve) => {
+        resolve('relaunch is NOP on PC');
+      });
     }
     return this.customRequest('relaunch_application', null);
   }

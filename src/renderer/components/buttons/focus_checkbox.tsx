@@ -10,23 +10,24 @@ export function FocusCheckbox(props: {
   onFocus?: () => void;
 }) {
   const [isChecked, setChecked] = useState(false);
+  const { checkStatus, text, className, autofocus, onFocus, onClick } = props;
 
   useEffect(() => {
-    if (props.checkStatus !== undefined) {
-      props
-        .checkStatus()
+    if (checkStatus !== undefined) {
+      checkStatus()
         .then((checked) => setChecked(checked))
         .catch((e) => alert(e));
     }
-  }, []);
+  }, [checkStatus]);
 
   return (
     <button
-      key={props.text}
+      type="button"
+      key={text}
       // type="checkbox"
-      className={props.className}
-      // name={props.text}
-      autoFocus={props.autofocus}
+      className={className}
+      // name={text}
+      autoFocus={autofocus}
       onMouseMove={(e) => e.currentTarget.focus()}
       onMouseEnter={(e) => e.currentTarget.focus()}
       onMouseLeave={(e) => e.currentTarget.blur()}
@@ -39,25 +40,21 @@ export function FocusCheckbox(props: {
         }
       }}
       onFocus={() => {
-        if (props.onFocus) {
-          props.onFocus();
+        if (onFocus) {
+          onFocus();
         }
       }}
       onClick={() => {
-        props
-          .onClick()
-          .then(() => {
-            if (props.checkStatus !== undefined) {
-              props
-                .checkStatus()
-                .then((checked) => setChecked(checked))
-                .catch((e) => alert(e));
+        onClick()
+          .then(async () => {
+            if (checkStatus !== undefined) {
+              setChecked(await checkStatus());
             }
           })
           .catch((e) => alert(e));
       }}
     >
-      {props.text}&nbsp;
+      {text}&nbsp;
       <input
         className="focus-check"
         type="checkbox"

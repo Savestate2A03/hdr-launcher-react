@@ -4,7 +4,7 @@ import { Remark } from 'react-remark';
 import { useNavigate } from 'react-router-dom';
 import { Pages } from 'renderer/constants';
 import { Backend } from 'renderer/operations/backend';
-import { Github } from 'renderer/operations/github_utils';
+import { Github, GithubPRComments } from 'renderer/operations/github_utils';
 import { FocusButton } from '../components/buttons/focus_button';
 import { ScrollFocusButton } from '../components/buttons/scroll_focus_button';
 import { LogPopout } from '../components/logging/log_popout';
@@ -73,14 +73,14 @@ export default function PullRequestMenu() {
                     const backend = Backend.instance();
                     const root = await backend.getSdRoot();
                     // get all the comments
-                    const comments = await backend.getJson(
+                    const comments: GithubPRComments = await backend.getJson(
                       pr.comments_url,
                       (p: Progress) => setProgress(p),
                     );
-                    for (const comment of comments as any[]) {
+                    comments.forEach(async (comment) => {
                       // if its not a github-actions bot comment, ignore it
                       if (!comment.user.login.includes('github-actions')) {
-                        continue;
+                        return;
                       }
 
                       // parse the download link out of the comment body
@@ -88,7 +88,7 @@ export default function PullRequestMenu() {
                       const body = comment.body as string;
                       if (!body.includes('[hdr-switch](https://')) {
                         // this isnt a comment we care about (PR artifacts)
-                        continue;
+                        return;
                       }
                       const startParse = body.indexOf('[hdr-switch](https://');
                       const startUrl = body.indexOf('https://', startParse);
@@ -98,7 +98,7 @@ export default function PullRequestMenu() {
                         alert(
                           `Error: bad url of length 0 for PR comment body:\n${body}`,
                         );
-                        continue;
+                        return;
                       }
 
                       // alert("downloading from url: " + url);
@@ -157,7 +157,7 @@ export default function PullRequestMenu() {
                           alert(
                             `Error: bad url of length 0 for parsing asset body:\n${pr.body}`,
                           );
-                          continue;
+                          return;
                         }
 
                         // if an existing pr assets folder exists, remove it
@@ -235,8 +235,7 @@ export default function PullRequestMenu() {
                       );
                       backend.openModManager();
                       setProgress(null);
-                      return;
-                    }
+                    });
                   } catch (e) {
                     alert(`Error while downloading PR: ${e}`);
                     setProgress(null);

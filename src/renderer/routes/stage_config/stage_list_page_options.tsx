@@ -5,6 +5,50 @@ import { useStageConfig } from './stage_config_provider';
 const MAX_PAGES = 8;
 const BACKGROUND_COLOR = 'var(--main-button-bg-color)';
 
+function PageDropdown(props: {
+  options: string[];
+  onChange: (item: { target: { value: string } }) => void;
+  onRemove: () => void;
+  selected: string;
+  showClear?: boolean;
+}) {
+  const { showClear, onChange, selected, options, onRemove } = props;
+  return (
+    <div>
+      <FocusCombo
+        className="hover-color"
+        style={{
+          width: showClear ? '90%' : '100%',
+          color: 'white',
+          fontSize: 'large',
+          paddingTop: 3,
+          paddingBottom: 3,
+        }}
+        onChange={onChange}
+        forcedValue={selected}
+        onFocus={() => {}}
+        options={options}
+      />
+      {showClear && (
+        <FocusButton
+          className="hover-color"
+          style={{
+            width: '10%',
+            color: 'pink',
+            fontWeight: 'bold',
+            fontSize: 'large',
+            paddingTop: 3,
+            paddingBottom: 1,
+          }}
+          text="X"
+          onFocus={() => {}}
+          onClick={onRemove}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function StagePageOptions() {
   const { pages, setPage, currentPage, setHoveredStage } = useStageConfig();
   const page = pages[currentPage];
@@ -87,49 +131,6 @@ export default function StagePageOptions() {
           showClear={page.useOfficial}
         />
       </div>
-    </div>
-  );
-}
-
-function PageDropdown(props: {
-  options: string[];
-  onChange: (item: { target: { value: string } }) => void;
-  onRemove: () => void;
-  selected: string;
-  showClear?: boolean;
-}) {
-  return (
-    <div>
-      <FocusCombo
-        className="hover-color"
-        style={{
-          width: props.showClear ? '90%' : '100%',
-          color: 'white',
-          fontSize: 'large',
-          paddingTop: 3,
-          paddingBottom: 3,
-        }}
-        onChange={props.onChange}
-        forcedValue={props.selected}
-        onFocus={() => {}}
-        options={props.options}
-      />
-      {props.showClear && (
-        <FocusButton
-          className="hover-color"
-          style={{
-            width: '10%',
-            color: 'pink',
-            fontWeight: 'bold',
-            fontSize: 'large',
-            paddingTop: 3,
-            paddingBottom: 1,
-          }}
-          text="X"
-          onFocus={() => {}}
-          onClick={props.onRemove}
-        />
-      )}
     </div>
   );
 }

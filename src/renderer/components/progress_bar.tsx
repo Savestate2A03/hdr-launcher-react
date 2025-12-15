@@ -18,21 +18,20 @@ const customStyles = {
  * progress bar implementation
  */
 function ProgressDisplayInner(props: { progress: Progress; animate: boolean }) {
-  if (props.progress === undefined || props.progress == null) {
+  const { progress, animate } = props;
+  if (progress === undefined || progress == null) {
     return <div />;
   }
 
   return (
     <div className="overlay-progress">
       <div className="progress-block vertical-center">
-        {props.animate ? <SlidingBackground /> : <div />}
-        <h1>{props.progress.title}</h1>
-        {/* <p>{props.progress.info}</p> */}
+        {animate ? <SlidingBackground /> : <div />}
+        <h1>{progress.title}</h1>
+        {/* <p>{progress.info}</p> */}
         <ProgressBar
           className="progress-wrapper"
-          completed={
-            props.progress.progress == null ? 0 : props.progress.progress * 100
-          }
+          completed={progress.progress == null ? 0 : progress.progress * 100}
           transitionDuration="100ms"
           isLabelVisible={false}
           bgColor="var(--main-button-bg-color)"

@@ -10,7 +10,7 @@ import { Progress, Messages, Responses } from 'nx-request-api';
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as md5 from 'md5-file';
+import md5 from 'md5-file';
 import * as extract from 'extract-zip';
 import axios, { AxiosError } from 'axios';
 import { OkOrError } from 'nx-request-api/lib/responses';
@@ -18,6 +18,7 @@ import * as Process from 'child_process';
 import * as net from 'net';
 import { mainWindow } from './main';
 import Config from './config';
+import packageJson from '../../release/app/package.json';
 
 function readDirAll(dir: string, tree: Responses.DirTree, depth: number) {
   // let tabs = "";
@@ -39,7 +40,7 @@ function readDirAll(dir: string, tree: Responses.DirTree, depth: number) {
 
 export class RequestHandler {
   async handle(request: any): Promise<Responses.OkOrError> {
-    return new Promise<Responses.OkOrError>(async (resolve) => {
+    return new Promise<Responses.OkOrError>((resolve) => {
       try {
         handleInner(request, resolve);
       } catch (e) {
@@ -99,6 +100,11 @@ async function handleInner(
 
   const name = request.call_name;
   console.info(`handling request: ${name}`);
+  let out: fs.WriteStream | null = null;
+  let command;
+  let did_connect: boolean;
+  let connect: { (): void };
+  let s;
   switch (name) {
     case 'ping':
       resolve(
@@ -187,7 +193,6 @@ async function handleInner(
         break;
       }
     case 'download_file':
-      var out: fs.WriteStream | null = null;
       try {
         if (!argcheck(2)) {
           break;
@@ -715,8 +720,7 @@ async function handleInner(
       }
     case 'get_launcher_version':
       try {
-        const pjson = require('../../release/app/package.json');
-        resolve(new Responses.OkOrError(true, pjson.version, request.id));
+        resolve(new Responses.OkOrError(true, packageJson.version, request.id));
         break;
       } catch (e) {
         resolve(new Responses.OkOrError(false, String(e), request.id));
@@ -794,7 +798,7 @@ async function handleInner(
     case 'exit_session':
       // play the game
       // resolve(new Responses.OkOrError(true, "starting the game...", request.id));
-      let command = path.normalize(`${Config.getRyuPath()}`);
+      command = path.normalize(`${Config.getRyuPath()}`);
       if (process.platform == 'win32') {
         command = `cmd /C ""${Config.getRyuPath()}""`;
       }
@@ -811,10 +815,10 @@ async function handleInner(
       });
       mainWindow?.hide();
 
-      let did_connect = false;
-      const connect = () => {
-        const s = net.createConnection(6969, 'localhost');
-        s.on('data', function (data) {
+      did_connect = false;
+      connect = () => {
+        s = net.createConnection(6969, 'localhost');
+        s.on('data', (data) => {
           did_connect = true;
           console.log(data.toString());
         });

@@ -9,17 +9,18 @@ export const OFFICIAL_STAGE_CONFIG =
 const CONFIG_PATH = 'ultimate/hdr-config/';
 
 // require() all of the stage previews
-new StageInfo().list().then((stages) =>
-  stages.forEach((stage) => {
+new StageInfo().list().then(async (stages) => {
+  for (let i = 0; i < stages.length; i++) {
+    const stage = stages[i];
     try {
-      require(
-        `../../../assets/stage_previews/stage_2_${stage.name_id.toLowerCase()}.jpg`,
+      await import(
+        `../../../assets/stage_previews/stage_2_${stage.name_id.toLowerCase()}.jpg`
       );
     } catch {
       console.warn(`Could not find stage preview for: ${stage.name_id}`);
     }
-  }),
-);
+  }
+});
 
 export interface StageList {
   starters: Stage[];
@@ -46,7 +47,8 @@ async function loadStageList(data: any): Promise<StageList> {
     };
     // load starters
     const starters: string[] = data?.starters ?? [];
-    for (const nameId of starters) {
+    for (let i = 0; i < starters.length; i++) {
+      const nameId = starters[i];
       try {
         let stage = await info.getById(nameId);
         stage ||= (await info.list())[0]; // default to the first stage if the named stage could not be loaded
@@ -58,7 +60,8 @@ async function loadStageList(data: any): Promise<StageList> {
 
     // load counterpicks
     const counterpicks: string[] = data?.counterpicks ?? [];
-    for (const nameId of counterpicks) {
+    for (let i = 0; i < counterpicks.length; i++) {
+      const nameId = starters[i];
       try {
         let stage = await info.getById(nameId);
         stage ||= (await info.list())[0]; // default to the first stage if the named stage could not be loaded
@@ -78,27 +81,20 @@ async function loadStageList(data: any): Promise<StageList> {
 }
 
 async function loadOfficialStageList(): Promise<StageList | null> {
-  return new Promise<StageList | null>(async (resolve, reject) => {
-    try {
-      const backend = Backend.instance();
-      const root = await backend.getSdRoot();
-      if (!(await backend.fileExists(root + OFFICIAL_STAGE_CONFIG))) {
-        resolve(null);
-        return;
-      }
-
-      await backend
-        .readFile(root + OFFICIAL_STAGE_CONFIG)
-        .then(async (json) => {
-          const data = JSON.parse(json);
-          const stageList = await loadStageList(data);
-          resolve(stageList);
-        })
-        .catch((e) => reject(e));
-    } catch (e) {
-      reject(e);
+  try {
+    const backend = Backend.instance();
+    const root = await backend.getSdRoot();
+    if (!(await backend.fileExists(root + OFFICIAL_STAGE_CONFIG))) {
+      return null;
     }
-  });
+
+    const json = await backend.readFile(root + OFFICIAL_STAGE_CONFIG);
+    const data = JSON.parse(json);
+    const stageList = await loadStageList(data);
+    return stageList;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function loadPages(data: any): Promise<Page[]> {
@@ -135,81 +131,71 @@ async function loadPages(data: any): Promise<Page[]> {
   }
 }
 
-export async function loadStageConfig(location: string): Promise<StageConfig> {
-  return new Promise<StageConfig>(async (resolve, reject) => {
-    try {
-      const backend = Backend.instance();
-      const root = await backend.getSdRoot();
+export async function loadStageConfig(
+  location: string,
+): Promise<StageConfig | null> {
+  try {
+    const backend = Backend.instance();
+    const root = await backend.getSdRoot();
 
-      // if the config doesn't already exist, default to empty
-      if (!(await backend.fileExists(root + location))) {
-        const officialStageList = await loadOfficialStageList();
-        resolve({
-          enabled: false,
-          pages: [
-            {
-              name: 'Page 1',
-              useOfficial: false,
-              starters: [],
-              counterpicks: [],
-            },
-          ],
-          officialStageList: officialStageList ?? undefined,
-        });
-        return;
-      }
-
-      // load the config from the input file
-      await backend
-        .readFile(root + location)
-        .then(async (json) => {
-          const data = JSON.parse(json);
-          const enabled: boolean = data.enabled ?? false;
-          const pages: Page[] = await loadPages(data);
-          const officialStageList = await loadOfficialStageList();
-          resolve({
-            enabled,
-            pages,
-            officialStageList: officialStageList ?? undefined,
-          });
-        })
-        .catch((e) => reject(e));
-    } catch (e) {
-      reject(e);
+    // if the config doesn't already exist, default to empty
+    if (!(await backend.fileExists(root + location))) {
+      const officialStageList = await loadOfficialStageList();
+      return {
+        enabled: false,
+        pages: [
+          {
+            name: 'Page 1',
+            useOfficial: false,
+            starters: [],
+            counterpicks: [],
+          },
+        ],
+        officialStageList: officialStageList ?? undefined,
+      };
     }
-  });
+
+    // load the config from the input file
+    const json = await backend.readFile(root + location);
+    const data = JSON.parse(json);
+    const enabled: boolean = data.enabled ?? false;
+    const pages: Page[] = await loadPages(data);
+    const officialStageList = await loadOfficialStageList();
+    return {
+      enabled,
+      pages,
+      officialStageList: officialStageList ?? undefined,
+    };
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function saveStageConfig(
   location: string,
   stageConfig: StageConfig,
 ): Promise<void> {
-  return new Promise<void>(async (resolve, reject) => {
-    try {
-      const backend = Backend.instance();
-      const root = await backend.getSdRoot();
-      const config = {
-        ...stageConfig,
-        pages: stageConfig.pages.map((page) => {
-          return {
-            ...page,
-            starters: page.starters.map((stage) => stage.name_id),
-            counterpicks: page.counterpicks.map((stage) => stage.name_id),
-          };
-        }),
-      };
+  try {
+    const backend = Backend.instance();
+    const root = await backend.getSdRoot();
+    const config = {
+      ...stageConfig,
+      pages: stageConfig.pages.map((page) => {
+        return {
+          ...page,
+          starters: page.starters.map((stage) => stage.name_id),
+          counterpicks: page.counterpicks.map((stage) => stage.name_id),
+        };
+      }),
+    };
 
-      const json = JSON.stringify(config);
-      const configDir = root + CONFIG_PATH;
-      const exists = await backend.fileExists(configDir);
-      if (!exists) {
-        await backend.mkdir(configDir);
-      }
-
-      await Backend.instance().writeFile(root + location, json);
-      resolve();
-    } catch (e) {
-      reject(e);
+    const json = JSON.stringify(config);
+    const configDir = root + CONFIG_PATH;
+    const exists = await backend.fileExists(configDir);
+    if (!exists) {
+      await backend.mkdir(configDir);
     }
-  });
+
+    await Backend.instance().writeFile(root + location, json);
+  } catch (e) {}
 }

@@ -8,6 +8,16 @@ export class PopupData {
 
   public onSelect: (selected: string) => void;
 
+  public id: string;
+
+  private static id: number;
+
+  private static nextId(): number {
+    const providedId = PopupData.id;
+    PopupData.id += 1;
+    return providedId;
+  }
+
   /**
    * creates a PopupData.
    * @param options a list of button options to be available
@@ -22,5 +32,6 @@ export class PopupData {
     this.options = options;
     this.text = text;
     this.onSelect = onSelect;
+    this.id = `popup-id-${PopupData.nextId()}`;
   }
 }

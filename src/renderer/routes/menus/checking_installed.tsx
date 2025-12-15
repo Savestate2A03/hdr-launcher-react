@@ -5,11 +5,12 @@ export function CheckingInstalled(props: {
   onComplete: (installedVersion: string | null) => void;
 }) {
   const [installed, setInstalled] = useState(null as null | string);
+  const { onComplete } = props;
 
   useEffect(() => {
     Backend.instance()
       .getVersion()
-      .then((version) => props.onComplete(version))
+      .then((version) => onComplete(version))
       .catch(async (e) => {
         const backend = Backend.instance();
         const root = await backend.getSdRoot();
@@ -22,17 +23,17 @@ export function CheckingInstalled(props: {
           );
           // if the PR build is enabled, then use that
           if (prEnabled) {
-            props.onComplete(prVersion);
+            onComplete(prVersion);
           } else {
-            props.onComplete(null);
+            onComplete(null);
           }
         } catch (e) {
           console.error(`Error while checking if HDR is installed!\n${e}`);
           alert(`Error while checking if HDR is installed!\n${e}`);
-          props.onComplete(null);
+          onComplete(null);
         }
       });
-  }, []);
+  }, [onComplete]);
 
   return <div>checking if HDR is installed...</div>;
 }

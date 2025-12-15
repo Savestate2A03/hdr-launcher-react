@@ -5,11 +5,17 @@ import { PopupData } from '../../operations/popup_data';
 import { Popup } from '../../components/popup';
 import { ProgressDisplay } from '../../components/progress_bar';
 
-export abstract class AbstractMenu<T> extends React.Component<T> {
-  state = {
-    progress: null,
-    popup: null,
-  };
+export abstract class AbstractMenu<T> extends React.Component<
+  T,
+  { popup: PopupData | null; progress: Progress | null }
+> {
+  constructor(props: T) {
+    super(props);
+    this.state = {
+      progress: null,
+      popup: null,
+    };
+  }
 
   showProgress(progress: Progress | null) {
     this.setState({ progress, popup: null });
@@ -24,14 +30,12 @@ export abstract class AbstractMenu<T> extends React.Component<T> {
   }
 
   render(): JSX.Element {
+    const { popup, progress } = this.state;
     return (
       <div>
-        {this.state.popup != null ? <Popup data={this.state.popup} /> : <div />}
-        {this.state.progress != null ? (
-          <ProgressDisplay
-            progress={this.state.progress}
-            animate={Backend.isNode()}
-          />
+        {popup != null ? <Popup data={popup} /> : <div />}
+        {progress != null ? (
+          <ProgressDisplay progress={progress} animate={Backend.isNode()} />
         ) : (
           <div />
         )}

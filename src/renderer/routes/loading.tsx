@@ -38,7 +38,7 @@ export default function Loading() {
       }
       navigate(Pages.MAIN_MENU);
     }, 2500);
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="overlay-opening">
@@ -48,6 +48,7 @@ export default function Loading() {
       </div>
       {will_skip ? (
         <button
+          type="button"
           autoFocus
           className="loading-button"
           onClick={() => {

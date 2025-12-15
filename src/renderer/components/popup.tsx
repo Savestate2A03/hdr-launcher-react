@@ -3,17 +3,18 @@ import { PopupData } from '../operations/popup_data';
 import { FocusButton } from './buttons/focus_button';
 
 export function Popup(props: { data: PopupData }) {
+  const { data } = props;
   return (
     <div className="overlay-progress">
       <div className="progress-block vertical-center">
-        <Remark>{props.data.text}</Remark>
-        {props.data.options.map((option, index) => {
+        <Remark>{data.text}</Remark>
+        {data.options.map((option, index) => {
           return (
             <FocusButton
-              key={index}
-              autofocus={index == 0}
+              key={data.id}
+              autofocus={index === 0}
               className="simple-button inline popup-button"
-              onClick={() => props.data.onSelect(option)}
+              onClick={() => data.onSelect(option)}
               text={option}
             />
           );

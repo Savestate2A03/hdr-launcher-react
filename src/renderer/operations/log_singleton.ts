@@ -15,7 +15,7 @@ class Node {
   }
 }
 
-class LogList {
+export class LogList {
   public head: Node | null = null;
 
   public tail: Node | null = null;

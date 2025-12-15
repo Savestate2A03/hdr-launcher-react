@@ -48,16 +48,27 @@ export default function StageConfigMenu() {
         setPages(stageConfig.pages);
         setCurrentPage(0);
         setOfficialStageList(stageConfig.officialStageList ?? null);
-        new StageInfo()
-          .list()
-          .then((list) => {
-            setStages(list);
-            setInitialized(true);
-          })
-          .catch((e) => alert(`failed to set stage options: ${e}`));
+        const list = await new StageInfo().list();
+        try {
+          setStages(list);
+          setInitialized(true);
+        } catch (e) {
+          alert(`failed to set stage options: ${e}`);
+        }
       })
       .catch((e) => alert(`failed to preload stage config: ${e}`));
-  }, [initialized, enabled, pages]);
+  }, [
+    initialized,
+    enabled,
+    pages,
+    setEnabled,
+    setHoveredStage,
+    setPages,
+    setCurrentPage,
+    setOfficialStageList,
+    setStages,
+    setInitialized,
+  ]);
 
   return (
     <FullScreenDiv>

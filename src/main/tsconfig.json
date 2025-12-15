@@ -3,7 +3,8 @@
   "compilerOptions": {
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["node"]
   },
   "include": ["./main.ts", "./**/*.ts"],
   "exclude": ["./preload.ts"]

@@ -17,7 +17,7 @@
     "build:main": "cross-env NODE_ENV=production tsx ./node_modules/webpack/bin/webpack.js --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production tsx ./node_modules/webpack/bin/webpack.js --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "tsx .erb/scripts/check-native-dep.js && cross-env NODE_ENV=development tsx ./node_modules/webpack/bin/webpack.js --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
-    "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0 --fix",
     "package": "tsx ./.erb/scripts/clean.js dist && yarn build && electron-builder build --publish never",
     "prepare": "husky install",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
